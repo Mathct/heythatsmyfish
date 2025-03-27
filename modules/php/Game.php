@@ -47,7 +47,10 @@ class Game extends \Table
 
         require 'material.inc.php';
 
-        $this->initGameStateLabels([]);
+        $this->initGameStateLabels([
+
+            "endgame" => 10,
+        ]);
 
         self::$instance = $this; // ATTENTION
 
@@ -110,6 +113,14 @@ class Game extends \Table
         $this->reloadPlayersBasicInfos();
 
 
+        self::initStat( 'table', 'turns_number', 0 );
+        
+
+        self::initStat( 'player', 'turns_number', 0 );
+        self::initStat( 'player', 'fish_collected', 0 );
+        self::initStat( 'player', 'tiles_collected', 0 );
+        
+        $this->setGameStateInitialValue("endgame", 0);
 
 
         // INIT ICE //
@@ -261,9 +272,24 @@ class Game extends \Table
 
     public function getGameProgression()
     {
-        // TODO: compute and return the game progression
+        $nbre_hex_restant = count(self::getObjectListFromDB( "SELECT card_id FROM tile WHERE card_location = 'board'", true ));
 
-        return 0;
+        if (game::$instance->getGameStateValue('endgame') == 1)
+        {
+            return 100;
+        }
+        
+        else if ($nbre_hex_restant <= 40)
+        {
+            return 50;
+        }
+
+        else
+        {
+            return 0;
+        }
+
+        
     }
 
 
@@ -472,6 +498,22 @@ class Game extends \Table
         }
 
         return $result;
+    }
+
+    // Stats turns
+
+    function updateNbTurns($arg)
+    {
+        $player_id = self::getActivePlayerId();
+
+        if($arg == "1")
+        {
+            $this->incStat(1, 'turns_number', $player_id);
+        }
+
+        if (self::getPlayerNoById($player_id) == 1) {
+            $this->incStat(1, 'turns_number');
+        }
     }
 
 

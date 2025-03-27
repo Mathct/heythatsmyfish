@@ -85,6 +85,7 @@ class Pending extends APP_GameClass
             );
 
             game::$instance->giveExtraTime($this->player_id);
+            game::$instance->updateNbTurns(1);
             game::$instance->addPendingFirst($this->player_id, "FirstTurn");
             }
 
@@ -147,6 +148,7 @@ class Pending extends APP_GameClass
             );
 
             game::$instance->giveExtraTime($this->player_id);
+            game::$instance->updateNbTurns(1);
             game::$instance->addPendingFirst($this->player_id, "FirstTurn");
         }
 
@@ -305,6 +307,9 @@ class Pending extends APP_GameClass
                 );
 
                 game::$instance->giveExtraTime($this->player_id);
+                game::$instance->updateNbTurns(1);
+                game::$instance->incStat(1, 'tiles_collected', $this->player_id);
+                game::$instance->incStat($fish, 'fish_collected', $this->player_id);
                 game::$instance->addPendingFirst($this->player_id, "NormalTurn");
                 }
 
@@ -397,6 +402,9 @@ class Pending extends APP_GameClass
             );
 
             game::$instance->giveExtraTime($this->player_id);
+            game::$instance->updateNbTurns(1);
+            game::$instance->incStat(1, 'tiles_collected', $this->player_id);
+            game::$instance->incStat($fish, 'fish_collected', $this->player_id);
             game::$instance->addPendingFirst($this->player_id, "NormalTurn");
         }
 
@@ -439,7 +447,11 @@ class Pending extends APP_GameClass
 
         foreach($penguin_infos as $penguin)
         {
+            $fish = self::getUniqueValueFromDB("SELECT card_type FROM tile WHERE card_location_arg = '{$penguin['hex']}'");
             self::DbQuery("UPDATE tile set card_location = {$this->player_id} WHERE card_location_arg = '{$penguin['hex']}'");
+
+            game::$instance->incStat(1, 'tiles_collected', $this->player_id);
+            game::$instance->incStat($fish, 'fish_collected', $this->player_id);
         }
 
         game::$instance->notifyAllPlayers(
@@ -459,6 +471,7 @@ class Pending extends APP_GameClass
         if($end >= 1)
         {
             game::$instance->giveExtraTime($this->player_id);
+            game::$instance->updateNbTurns(0);
             game::$instance->addPendingFirst($this->player_id, "Pass");
         }
 
@@ -496,7 +509,8 @@ class Pending extends APP_GameClass
                 
             }
 
-            game::$instance->gamestate->nextState('end');           
+            game::$instance->setGameStateValue("endgame", 1); // pour progression
+            game::$instance->addPending($this->player_id, "End");   
 
         }
         
@@ -537,8 +551,32 @@ class Pending extends APP_GameClass
         
         
         game::$instance->giveExtraTime($this->player_id);
+        game::$instance->updateNbTurns(0);
         game::$instance->addPendingFirst($this->player_id, "Pass");
         
+    }
+
+    function argEnd($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must move a penguin');
+        $ret['titleyou'] = clienttranslate('${you} can\'t play anymore');
+
+
+        
+        
+
+        return $ret;
+    }
+
+    function End($parg1, $parg2, $varg1, $varg2)
+    {
+        
+        game::$instance->gamestate->nextState('end');
     }
 
 
