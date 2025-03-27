@@ -1,0 +1,37 @@
+{
+    "100": {
+      "name": "Confirmation steps",
+      "needReload": true,
+      "values": {
+        "1": {
+          "name": "Disabled"
+          
+        },
+        "2": {
+          "name": "Enabled"
+          
+        }
+        
+      },
+      "default": 1
+    },
+
+    "101": {
+      "name": "Ice floe Tiles animation",
+      "needReload": true,
+      "values": {
+        "1": {
+          "name": "Enabled"
+          
+        },
+        "2": {
+          "name": "Disabled"
+          
+        }
+        
+      },
+      "default": 1
+    }
+ 
+    
+}

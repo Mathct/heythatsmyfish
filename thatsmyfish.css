@@ -1,0 +1,453 @@
+/**
+ *------
+ * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
+ * heythatsmyfish implementation : © <Your name here> <Your email address here>
+ *
+ * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
+ * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * -----
+ *
+ * heythatsmyfish.css
+ *
+ * heythatsmyfish stylesheet
+ *
+ */
+
+* {
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+  border: 0;
+} 
+
+:root {
+  --hex-width: 216px;
+  --hex-height: 250px;
+
+}
+
+body {
+    background-image: url('img/sea.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/*
+body {
+    background-color:#0c4042;
+}
+
+.player-board {
+    background-color: #2db2b6 !important;
+}*/
+
+/* Fonts and Tooltips */
+/*
+  @font-face {
+    font-family: 'GingerPro';
+    font-style: normal;
+    font-weight: normal;
+    src: local('GingerPro'), url(img/GingerPro.otf);
+  }
+*/
+
+
+
+
+
+
+
+
+
+/* Conteneur principal */
+#resized_id {
+    /*anachrony*/
+    position: relative;
+    transform-origin: top left;
+    display: flex;
+}
+
+#iceberg {
+    position: absolute;
+    width: 360px;
+    height: 224px;
+    top:140px;
+    left:20px;
+    background: url('img/iceberg.png');
+    background-size: 100% 100%;
+    
+    
+    
+}
+
+#iceberg2 {
+    position: absolute;
+    width: 250px;
+    height: 155px;
+    top:550px;
+    right:130px;
+    background: url('img/iceberg2.png');
+    background-size: 100% 100%;
+    
+    
+}
+
+
+
+
+/* Conteneur de la table */
+#board_id {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 880px;
+  height: 796px;
+  margin: 0px auto;
+  border-radius: 20px;
+  z-index: 1;
+  position: relative;
+  /*background-color:#2db2b6;*/
+  
+}
+
+
+
+.hex {
+    position: absolute;
+    width: 108.25px;
+    height: 125px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.tile {
+    position: absolute;
+    width: 108.25px;
+    height: 125px;
+    background: url('img/TMF_fish_tiles.png');
+    background-size: 500% 300%;    
+}
+
+@keyframes floatTile {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(var(--x-move), var(--y-move)); }
+    50% { transform: translate(0, 0); }
+    75% { transform: translate(calc(var(--x-move) * -1), calc(var(--y-move) * -1)); }
+    100% { transform: translate(0, 0); }
+}
+
+.no-animation {
+    animation: none !important;
+}
+
+
+
+.empty {
+    background-position: 0% 0%;
+}
+
+.one_fish {
+    background-position: -100% 0%;
+}
+
+.selectable {
+    position: absolute;
+    width: 108.25px; /* Largeur de l'hexagone */
+    height: 125px; /* Hauteur de l'hexagone */
+    clip-path: polygon(
+        50% 0%, 100% 25%, 100% 75%, 
+        50% 100%, 0% 75%, 0% 25%
+    );
+    cursor: pointer; /* Indique que l'élément est cliquable */
+    z-index: 10;
+
+    
+
+}
+
+.selectable_ff6e48 {
+    
+
+    background: url('img/borders.png');
+    background-size: 400% 100%;
+    background-position: -0% -0%; 
+
+}
+
+.selectable_fec307 {
+    
+
+    background: url('img/borders.png');
+    background-size: 400% 100%;
+    background-position: -100% -0%;
+
+}
+
+.selectable_9d56cc {
+    
+
+    background: url('img/borders.png');
+    background-size: 400% 100%;
+    background-position: -200% -0%;
+
+}
+
+.selectable_32a094 {
+    
+
+    background: url('img/borders.png');
+    background-size: 400% 100%;
+    background-position: -300% -0%;
+
+}
+
+
+.selectable2 {
+    position: absolute;
+    width: 108.25px; /* Largeur de l'hexagone */
+    height: 125px; /* Hauteur de l'hexagone */
+    clip-path: polygon(
+        50% 0%, 100% 25%, 100% 75%, 
+        50% 100%, 0% 75%, 0% 25%
+    );
+    cursor: pointer; /* Indique que l'élément est cliquable */
+    z-index: 10;
+
+    background: url('img/borders2.png');
+    background-size: 400% 100%;
+    background-position: -300% -0%;
+
+}
+
+
+.selected {
+    position: absolute;
+    width: 108.25px; /* Largeur de l'hexagone */
+    height: 125px; /* Hauteur de l'hexagone */
+    clip-path: polygon(
+        50% 0%, 100% 25%, 100% 75%, 
+        50% 100%, 0% 75%, 0% 25%
+    );
+    z-index: 10;
+    cursor: pointer; /* Indique que l'élément est cliquable */
+
+    background: url('img/borders2.png');
+    background-size: 400% 100%;
+    background-position: -0% -0%;
+}
+
+.penguins {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: url('img/TMF_penguins.png');
+    background-size: 400% 100%;
+    opacity: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.icon_penguins {
+    /*position: absolute;*/
+    width: 32px;
+    height: 32px;
+    background: url('img/TMF_penguins.png');
+    background-size: 400% 100%; 
+    margin-right: -7px;
+}
+
+.borders {
+    position: absolute;
+    width: 108.25px;
+    height: 125px;
+    background: url('img/borders.png');
+    background-size: 400% 100%;
+}
+
+.borders2 {
+    position: absolute;
+    width: 108.25px;
+    height: 125px;
+    background: url('img/borders2.png');
+    background-size: 400% 100%;
+}
+
+.red {
+    background-position: -0% -0%;
+}
+
+.yellow {
+    background-position: -100% -0%;
+}
+
+.purple {
+    background-position: -200% -0%;
+}
+
+.green {
+    background-position: -300% -0%;
+}
+
+
+.a_board {
+  clear: both;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px; /* Espace entre les groupes (fish et tile) */
+  margin-bottom: 5px;
+  height: 32px;
+}
+
+/* Style des icônes */
+.icons {
+  display: inline-block; /* Évite la superposition */
+  width: 40px;
+  height: 40px;
+  background: url('img/TMF_icons.png');
+  background-size: 200% 100%;
+}
+
+/* Position spécifique pour chaque icône */
+.icons.ice {
+  background-position: -100% -0%;
+}
+
+
+.icons_fish {
+  display: inline-block; /* Évite la superposition */
+  width: 35px;
+  height: 40px;
+  background: url('img/TMF_fish_tiles.png');
+  background-size: 500% 300%;    
+}
+
+/* Groupe contenant une icône et son compteur */
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 2px; /* Espace entre l'icône et le texte */
+}
+
+/* Compteur */
+.tmf_icon_text {
+  font-size: 16pt;
+  line-height: 40px;
+}
+
+
+.zoom-out-animation {
+    animation: zoomOut 0.3s ease-in-out;
+}
+
+@keyframes zoomOut {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+}
+
+.zoom-in-animation {
+    animation: zoomIn 0.3s ease-in-out;
+}
+
+@keyframes zoomIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+
+
+@media (min-width: 1740px) and (max-width: 1810px) {
+
+    #iceberg {
+        width: 320px;
+        height: 199px;
+        top: 150px;
+           
+    }
+    
+    #iceberg2 {
+        width: 230px;
+        height: 143px;
+                
+    }
+
+
+    
+  }
+
+  @media (min-width: 1675px) and (max-width: 1739px) {
+
+    #iceberg {
+        width: 290px;
+        height: 180px;
+        top: 160px;
+           
+    }
+    
+    #iceberg2 {
+        width: 200px;
+        height: 124px;
+        top: 565px;
+                
+    }
+
+
+    
+  }
+
+  @media (min-width: 1555px) and (max-width: 1675px) {
+
+    #iceberg {
+        width: 250px;
+        height: 156px;
+        top: 175px;
+        left: 5px;
+           
+    }
+    
+    #iceberg2 {
+        width: 200px;
+        height: 124px;
+        top: 565px;
+        right: 60px;
+                
+    }
+
+
+    
+  }
+
+  @media (max-width: 1554px) {
+
+    #iceberg {
+        visibility: hidden;
+           
+    }
+    
+    #iceberg2 {
+        visibility: hidden;
+                
+    }
+
+
+    
+  }
