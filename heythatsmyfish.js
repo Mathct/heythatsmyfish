@@ -454,7 +454,8 @@ setupBoard: function () {
             // Ajoute l'animation CSS
 
             if( this.getGameUserPreference('101') == 1 ) {
-                tile_elt.style.animation = `floatTile ${3 + Math.random()}s infinite ease-in-out`;
+                tile_elt.style.animation = `floatTile ${5 + Math.random() * 2}s infinite ease-in-out`;
+
             }
             
 
