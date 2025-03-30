@@ -443,6 +443,8 @@ class Pending extends APP_GameClass
         $last_tile = $fish_type.'_'.$sprite;
         self::DbQuery("UPDATE player set player_last_tile = '{$last_tile}' WHERE player_id = '{$this->player_id}'");
 
+        $fish_gain = 0;
+
         self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$this->player_id}'");
 
         foreach($penguin_infos as $penguin)
@@ -452,6 +454,8 @@ class Pending extends APP_GameClass
 
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+            $fish_gain = $fish_gain + $fish;
         }
 
         game::$instance->notifyAllPlayers(
@@ -461,6 +465,17 @@ class Pending extends APP_GameClass
                 'player_name' => $this->player_name,
                 'penguin_infos' => $penguin_infos,
                 'last_tile' => $last_tile,
+
+            )
+        );
+
+        game::$instance->notifyAllPlayers(
+            'message',
+            clienttranslate('${player_name} collects ${nb} fish'),
+            array(
+                'player_name' => $this->player_name,
+                'nb' => $fish_gain,
+                
 
             )
         );
