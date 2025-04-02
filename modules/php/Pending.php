@@ -112,6 +112,8 @@ class Pending extends APP_GameClass
         $ret['title'] = clienttranslate('${actplayer} must place a penguin');
         $ret['titleyou'] = clienttranslate('${you} must confirm');
 
+        $ret["selected"][] = $parg1;
+
 
         $ret['buttons'][] = 'yes';
         $ret['buttons'][] = 'no';
@@ -351,6 +353,9 @@ class Pending extends APP_GameClass
         $ret['buttons'] = array();
         $ret['title'] = clienttranslate('${actplayer} must move a penguin');
         $ret['titleyou'] = clienttranslate('${you} must confirm');
+
+        $ret["selected"][] = $parg1;
+        $ret["selected"][] = $parg2;
 
 
         $ret['buttons'][] = 'yes';
