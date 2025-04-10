@@ -114,6 +114,8 @@ onEnteringState: function( stateName, args )
         case 'playerTurn':
             this.args = args.args;
 
+            this.removeBackPenguin(this.getActivePlayerId());
+
             if(this.isCurrentPlayerActive()) {
                 this.args.selectable.forEach(sid => {
 
@@ -367,7 +369,7 @@ setupPlayersBoard: function() {
             const penguinGroup = document.getElementById(`penguins_group_${penguin.player_id}`);
 
             const penguinIcon = `
-                <div class="icon_penguins ${colorClass}" id="icn_peng_${penguin.player_id}_${penguin.no}"></div>
+                <div class="icon_penguins front ${colorClass}" id="icn_peng_${penguin.player_id}_${penguin.no}"></div>
             `;
             penguinGroup.insertAdjacentHTML("beforeend", penguinIcon);
 
@@ -497,7 +499,15 @@ setupBoard: function () {
 
 
 
+removeBackPenguin: function( player_id) {
+    const penguins = document.querySelectorAll(`[id^="peng_${player_id}"]`);
 
+    penguins.forEach(penguin => {
+        if (penguin.classList.contains('back')) {
+            penguin.classList.replace('back', 'front');
+        }
+    });
+},
 
 
 setupCounters: function() {
@@ -541,10 +551,12 @@ createPenguin: async function(penguin) {
     const player = this.players[penguin.player_id];
     const playerColor = player.color; 
     const colorClass = this.colorClasses[playerColor];
+
+    const view = penguin.hex == player.new_tile ? "back" : "front"; // A MODIFIER
     
     // penguin token creation
     const penguinToken = document.createElement("div");
-    penguinToken.classList.add("penguins", colorClass);
+    penguinToken.classList.add("penguins", colorClass, view);
     penguinToken.id = `peng_${penguin.player_id}_${penguin.no}`;
 
     // penguin is added to tile
@@ -669,6 +681,8 @@ onOpButton: function(evt)
         const penguin = args.penguin_infos;
         // this.penguins is updated
         const penguinToUpdate = this.penguins.find(p => p.id === penguin.id);
+
+        const old_hex = penguinToUpdate.hex;
         penguinToUpdate.hex = penguin.hex; // Met à jour la valeur de 'hex'
 
         const peng_id = `peng_${penguin.player_id}_${penguin.no}`;
@@ -681,6 +695,18 @@ onOpButton: function(evt)
         dojo.query(".selectable_32a094").removeClass("selectable_32a094");
         dojo.query(".selectable2").removeClass("selectable2");
         dojo.query(".selected").removeClass("selected");
+
+        const peng_line = Math.floor(penguin.hex / 10);
+        let orient;
+        if( peng_line % 2 == 1) {
+            orient = ( old_hex % 10 < penguin.hex % 10) ? "right" : "left";
+        }
+        else {
+            orient = ( old_hex % 10 <= penguin.hex % 10) ? "right" : "left";
+        }
+
+        const penguinToMove = document.getElementById(`peng_${penguin.player_id}_${penguin.no}`);
+        penguinToMove.classList.replace('front', orient);
         
 
         await this.slide(peng_id, hexTile, {phantom: false});
@@ -699,6 +725,7 @@ onOpButton: function(evt)
                 }
                 this.destroy(tileToRemove);
                 //tileToRemove.style.backgroundPosition = `0% 0%`;
+                penguinToMove.classList.replace(orient, 'back');
                 resolve();
             }, { once: true });
         });

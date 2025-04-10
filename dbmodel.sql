@@ -65,3 +65,4 @@ CREATE TABLE IF NOT EXISTS `penguin` (
 
 
 ALTER TABLE `player` ADD `player_last_tile` varchar(10) DEFAULT 0;
+ALTER TABLE `player` ADD `player_new_tile` varchar(10) DEFAULT 0;

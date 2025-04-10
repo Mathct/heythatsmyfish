@@ -285,6 +285,7 @@ class Pending extends APP_GameClass
                 $newhex = intval($explode2[1]);
 
                 self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+                self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
                 self::DbQuery("UPDATE tile set card_location = {$this->player_id} WHERE card_location_arg = '{$starthex}'");
 
                 $penguin_infos = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
@@ -383,6 +384,7 @@ class Pending extends APP_GameClass
             $newhex = intval($explode2[1]);
 
             self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+            self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
             self::DbQuery("UPDATE tile set card_location = {$this->player_id} WHERE card_location_arg = '{$starthex}'");
 
             $penguin_infos = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
@@ -451,6 +453,7 @@ class Pending extends APP_GameClass
         $fish_gain = 0;
 
         self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$this->player_id}'");
+        self::DbQuery("UPDATE player set player_new_tile = 0 WHERE player_id = '{$this->player_id}'");
 
         foreach($penguin_infos as $penguin)
         {

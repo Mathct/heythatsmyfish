@@ -113,13 +113,13 @@ class Game extends \Table
         $this->reloadPlayersBasicInfos();
 
 
-        self::initStat( 'table', 'turns_number', 0 );
-        
+        self::initStat('table', 'turns_number', 0);
 
-        self::initStat( 'player', 'turns_number', 0 );
-        self::initStat( 'player', 'fish_collected', 0 );
-        self::initStat( 'player', 'tiles_collected', 0 );
-        
+
+        self::initStat('player', 'turns_number', 0);
+        self::initStat('player', 'fish_collected', 0);
+        self::initStat('player', 'tiles_collected', 0);
+
         $this->setGameStateInitialValue("endgame", 0);
 
 
@@ -227,7 +227,7 @@ class Game extends \Table
 
         // Get information about players.
         // NOTE: you can retrieve some extra field you added for "player" table in `dbmodel.sql` if you need it.
-        $sql = "SELECT player_id id, player_score score, player_color color, player_no no, player_name name, player_last_tile last_tile FROM player ORDER BY player_no";
+        $sql = "SELECT player_id id, player_score score, player_color color, player_no no, player_name name, player_last_tile last_tile, player_new_tile new_tile FROM player ORDER BY player_no";
         $result['players'] = self::getCollectionFromDb($sql);
 
         $sql = "SELECT card_id id, card_type type, card_type_arg type_arg, card_location location, card_location_arg location_arg FROM tile WHERE 1";
@@ -272,24 +272,15 @@ class Game extends \Table
 
     public function getGameProgression()
     {
-        $nbre_hex_restant = count(self::getObjectListFromDB( "SELECT card_id FROM tile WHERE card_location = 'board'", true ));
+        $nbre_hex_restant = count(self::getObjectListFromDB("SELECT card_id FROM tile WHERE card_location = 'board'", true));
 
-        if (game::$instance->getGameStateValue('endgame') == 1)
-        {
+        if (game::$instance->getGameStateValue('endgame') == 1) {
             return 100;
-        }
-        
-        else if ($nbre_hex_restant <= 40)
-        {
+        } else if ($nbre_hex_restant <= 40) {
             return 50;
-        }
-
-        else
-        {
+        } else {
             return 0;
         }
-
-        
     }
 
 
@@ -506,8 +497,7 @@ class Game extends \Table
     {
         $player_id = self::getActivePlayerId();
 
-        if($arg == "1")
-        {
+        if ($arg == "1") {
             $this->incStat(1, 'turns_number', $player_id);
         }
 
@@ -650,7 +640,17 @@ class Game extends \Table
     /////////////////////////////////////////////////////////////////////////////////  
 
 
-    public function upgradeTableDb($from_version) {}
+    public function upgradeTableDb($from_version) {
+
+        if( $from_version <= 2504021957)
+        {
+        
+        $sql = "ALTER TABLE DBPREFIX_player ADD `player_new_tile` varchar(10) DEFAULT 0";
+        self::applyDbUpgradeToAllDB( $sql );
+        }
+
+
+    }
 
 
 
