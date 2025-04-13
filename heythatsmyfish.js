@@ -71,6 +71,7 @@ setup: function( gamedatas )
 
     this.setupPlayersBoard();
     this.setupBoard();
+    this.addHelp();
     this.setupCounters();
     this.setupTooltips();
     
@@ -356,6 +357,9 @@ setupPlayersBoard: function() {
         aiBoard.insertAdjacentHTML("beforeend", tileGroup);
 
         aiBoard.insertAdjacentHTML("beforeend", `<div class="icon-group" id="penguins_group_${player.id}"></div>`);
+
+
+
     });
 
     this.penguins.reverse().forEach((penguin) => {
@@ -499,6 +503,36 @@ setupBoard: function () {
 
 
 
+
+addHelp: function() {
+    const isTouch = document.getElementById('ebd-body').classList.contains('touch-device');
+
+    const helpButton = document.createElement('div');
+    helpButton.id = 'tmf_help';
+    helpButton.className = 'tmf-help-button';
+    helpButton.textContent = '?';
+
+    document.body.appendChild(helpButton);
+
+    if (isTouch) {
+        helpButton.addEventListener('click', () => {
+            const penguins = document.querySelectorAll('.penguins');
+            const isHidden = penguins.length && penguins[0].classList.contains('hidden');
+            penguins.forEach(el => el.classList.toggle('hidden', !isHidden));
+        });
+    } else {
+        helpButton.addEventListener('mouseenter', () => {
+            document.querySelectorAll('.penguins').forEach(el => el.classList.add('hidden'));
+        });
+
+        helpButton.addEventListener('mouseleave', () => {
+            document.querySelectorAll('.penguins').forEach(el => el.classList.remove('hidden'));
+        });
+    }
+},
+
+
+
 removeBackPenguin: function( player_id) {
     const penguins = document.querySelectorAll(`[id^="peng_${player_id}"]`);
 
@@ -530,20 +564,25 @@ setupTooltips:function () {
 },
 
 onScreenWidthChange: function () {
-        var gameWidth = TABLE_WIDTH;
-        var gameHeight = TABLE_HEIGHT;
+    this.updateLayout();
+},
 
-        var horizontalScale = document.getElementById('game_play_area').clientWidth / gameWidth;
-        var verticalScale = (window.innerHeight - 0) / gameHeight;
+updateLayout: function() {
+    var gameWidth = TABLE_WIDTH;
+    var gameHeight = TABLE_HEIGHT;
 
-        var scale = Math.min(1, horizontalScale, verticalScale);
+    var horizontalScale = document.getElementById('game_play_area').clientWidth / gameWidth;
+    var verticalScale = (window.innerHeight - 0) / gameHeight;
 
-        var resized_div = document.getElementById('resized_id');
-        var play_area_height = dojo.marginBox("board_id").h;
+    var scale = Math.min(1, horizontalScale, verticalScale);
 
-        resized_div.style.transform = scale === 1 ? '' : "scale(".concat(scale, ")");
+    var resized_div = document.getElementById('resized_id');
+    var play_area_height = dojo.marginBox("board_id").h;
 
-        dojo.style("resized_id",'height', (play_area_height*scale)+'px');      
+    resized_div.style.transform = scale === 1 ? '' : "scale(".concat(scale, ")");
+
+    dojo.style("resized_id",'height', (play_area_height*scale)+'px');
+
 },
 
 createPenguin: async function(penguin) {

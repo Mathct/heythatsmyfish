@@ -40,6 +40,7 @@ define(['dojo', 'dojo/_base/declare', g_gamethemeurl + 'modules/js/vendor/nouisl
       this.alwaysFixTopActionsMaximum = 30;
     },
 
+
     destroyTooltip(elem) {
       if (this.tooltips[elem.id]) {
         clearTimeout(this.tooltips[elem.id].showTimeout);
