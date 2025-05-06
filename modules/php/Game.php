@@ -276,10 +276,12 @@ class Game extends \Table
 
         if (game::$instance->getGameStateValue('endgame') == 1) {
             return 100;
-        } else if ($nbre_hex_restant <= 40) {
+        } 
+        /*else if ($nbre_hex_restant <= 40) {
             return 50;
-        } else {
-            return 0;
+        } */
+        else {
+            return (100 - floor($nbre_hex_restant *100 / 60));
         }
     }
 
