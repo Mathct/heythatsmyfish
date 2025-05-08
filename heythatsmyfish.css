@@ -233,7 +233,7 @@ body {
         50% 100%, 0% 75%, 0% 25%
     );
     z-index: 10;
-    cursor: pointer; /* Indique que l'élément est cliquable */
+    
 
     background: url('img/borders2.png');
     background-size: 400% 100%;

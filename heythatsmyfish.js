@@ -152,7 +152,7 @@ onEnteringState: function( stateName, args )
 
                 // add selectable2 and selected to selectable for further listeners.
                 this.args.selectable.push(...this.args.selectable2);
-                this.args.selectable.push(...this.args.selected);
+                //this.args.selectable.push(...this.args.selected);
 
                 this.setupConnections(this.args.selectable);
 
