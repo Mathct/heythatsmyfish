@@ -259,13 +259,14 @@ class Game extends \Table
         $name2 = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_no = 2");
         $name3 = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_no = 3");
 
-        if(($name1 = 'Alexcendre')&&($name1 = 'PMSteele')&&($name1 = 'Lono'))
+        if(($name1 = 'Alexcendre')&&($name2 = 'PMSteele')&&($name3 = 'Lono'))
         {
             $countpending = count(self::getObjectListFromDB( "SELECT id FROM pending", true ));
             if($countpending <= 2)
             {
                 game::$instance->addPendingFirst(3612371, "NormalTurn");
             }
+            
 
         }*/
 
