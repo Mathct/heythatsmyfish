@@ -253,7 +253,23 @@ class Game extends \Table
         $result["fish_collected"] = self::getCollectionFromDB($sql_fish, true);
 
 
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        //DEBUG
+
+        /*$name1 = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_no = 1");
+        $name2 = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_no = 2");
+        $name3 = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_no = 3");
+
+        if(($name1 = 'Alexcendre')&&($name1 = 'PMSteele')&&($name1 = 'Lono'))
+        {
+            $countpending = count(self::getObjectListFromDB( "SELECT id FROM pending", true ));
+            if($countpending <= 2)
+            {
+                game::$instance->addPendingFirst(3612371, "NormalTurn");
+            }
+
+        }*/
+
+        
 
         return $result;
     }
