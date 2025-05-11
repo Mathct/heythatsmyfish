@@ -313,7 +313,38 @@ class Pending extends APP_GameClass
                 game::$instance->updateNbTurns(1);
                 game::$instance->incStat(1, 'tiles_collected', $this->player_id);
                 game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+
+                /// TEST ISOLATED PENGUIN
+
+                $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+                
+                if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
+                unset($hex_occuped[$index]);                        // Supprime la valeur cible
+                $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
+                array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
+                }
+
+                foreach($hex_occuped as $hex)
+                {
+                    $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                    if($test_isolate == true)
+                    {
+                        $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                        if($tiles != null)
+                        {
+                            game::$instance->addPending($this->player_id, "Isolate", $hex);
+                        }
+                        else{
+                            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                        }
+                    }
+
+                }
+
                 game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+
+                                
                 }
 
                 if($this->player_pref_confirm == 2)
@@ -412,7 +443,36 @@ class Pending extends APP_GameClass
             game::$instance->updateNbTurns(1);
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+            
+            /// TEST ISOLATED PENGUIN
+
+            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            
+            if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
+            unset($hex_occuped[$index]);                        // Supprime la valeur cible
+            $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
+            array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
+            }
+
+            foreach($hex_occuped as $hex)
+            {
+                $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                if($test_isolate == true)
+                {
+                    $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                    if($tiles != null)
+                    {
+                        game::$instance->addPending($this->player_id, "Isolate", $hex);
+                    }
+                    else{
+                        game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                    }
+                }
+
+            }
+
             game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+
         }
 
         
@@ -604,6 +664,171 @@ class Pending extends APP_GameClass
 
 
 
+    ////////////////// ISOLATE ////////////////
+
+    function argIsolate($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must do all the movements of the isolated penguins');
+        $ret['titleyou'] = clienttranslate('This penguin is isolated. ${you} must complete all of its movements');
+
+
+        $ret["selected"][] = 'hex_' . $parg1;
+
+
+        $tiles = game::$instance->testMovePenguin($this->player_id, $parg1);
+        foreach ($tiles as $tile)
+        {
+            $ret["selectable"][] = 'hex_' . $tile; 
+        }
+
+
+               
+
+        return $ret;
+    }
+
+    function Isolate($parg1, $parg2, $varg1, $varg2)
+    {
+        $explode2 = explode('_', $varg1);
+
+        $starthex = intval($parg1);
+        $newhex = intval($explode2[1]);
+
+
+        if($this->player_pref_confirm == 1){
+
+        self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+        self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
+        self::DbQuery("UPDATE tile set card_location = {$this->player_id} WHERE card_location_arg = '{$starthex}'");
+
+        $penguin_infos = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
+
+        $fish = self::getUniqueValueFromDB("SELECT card_type FROM tile WHERE card_location_arg = '{$starthex}'");
+        $sprite = self::getUniqueValueFromDB("SELECT card_type_arg FROM tile WHERE card_location_arg = '{$starthex}'");
+
+        $last_tile = $fish.'_'.$sprite;
+        self::DbQuery("UPDATE player set player_last_tile = '{$last_tile}' WHERE player_id = '{$this->player_id}'");
+
+        game::$instance->notifyAllPlayers(
+            'movePenguin',
+            clienttranslate('${player_name} moves a penguin and collects ${nb} fish'),
+            array(
+                'player_name' => $this->player_name,
+                'starthex' => $starthex,
+                'penguin_infos' => $penguin_infos,
+                'nb' => $fish,
+                'last_tile' => $last_tile,
+
+            )
+        );
+
+        game::$instance->giveExtraTime($this->player_id);
+        game::$instance->updateNbTurns(1);
+        game::$instance->incStat(1, 'tiles_collected', $this->player_id);
+        game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+        $tiles = game::$instance->testMovePenguin($this->player_id, $newhex);
+
+        if($tiles != null)
+        {
+            game::$instance->addPending($this->player_id, "Isolate", $newhex);
+        }
+        }
+
+        if($this->player_pref_confirm == 2){
+            game::$instance->addPending($this->player_id, "IsolateConfirm", $starthex, $newhex);
+        }
+
+               
+        
+    }
+
+
+    function argIsolateConfirm($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must make all the movements of the isolated Penguin');
+        $ret['titleyou'] = clienttranslate('${you} must confirm');
+
+        $ret["selected"][] = 'hex_'.$parg1;
+        $ret["selected"][] = 'hex_'.$parg2;
+
+
+        $ret['buttons'][] = 'yes';
+        $ret['buttons'][] = 'no';
+
+
+        
+
+        
+        
+
+        return $ret;
+    }
+
+    function IsolateConfirm($parg1, $parg2, $varg1, $varg2)
+    {
+        if($varg1 == 'no')
+        {
+            game::$instance->addPending($this->player_id, "Isolate", $parg1);
+        }
+
+        if($varg1 == 'yes')
+        {
+            $starthex = $parg1;
+            $newhex = $parg2;
+
+            self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+            self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
+            self::DbQuery("UPDATE tile set card_location = {$this->player_id} WHERE card_location_arg = '{$starthex}'");
+
+            $penguin_infos = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
+
+            $fish = self::getUniqueValueFromDB("SELECT card_type FROM tile WHERE card_location_arg = '{$starthex}'");
+            $sprite = self::getUniqueValueFromDB("SELECT card_type_arg FROM tile WHERE card_location_arg = '{$starthex}'");
+
+            $last_tile = $fish.'_'.$sprite;
+            self::DbQuery("UPDATE player set player_last_tile = '{$last_tile}' WHERE player_id = '{$this->player_id}'");
+
+            game::$instance->notifyAllPlayers(
+                'movePenguin',
+                clienttranslate('${player_name} moves a penguin and collects ${nb} fish'),
+                array(
+                    'player_name' => $this->player_name,
+                    'starthex' => $starthex,
+                    'penguin_infos' => $penguin_infos,
+                    'nb' => $fish,
+                    'last_tile' => $last_tile,
+
+                )
+            );
+
+            game::$instance->giveExtraTime($this->player_id);
+            game::$instance->updateNbTurns(1);
+            game::$instance->incStat(1, 'tiles_collected', $this->player_id);
+            game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+            $tiles = game::$instance->testMovePenguin($this->player_id, $newhex);
+
+            if($tiles != null)
+            {
+                game::$instance->addPending($this->player_id, "Isolate", $newhex);
+            }
+            
+        }
+        
+        
+        
+    }
 
 
 

@@ -526,6 +526,189 @@ class Game extends \Table
     }
 
 
+    function testIsolatedPenguin($hex_penguin)
+    {
+        $hex_test = array();
+
+        $hex_ok = array();
+
+        // init avec l'hex de départ
+        $hex_ok[] = intval($hex_penguin);
+
+        // recuperation des 6 hex autour du pengouin si elles sont encore sur le board
+
+        $paritehex_penguin = game::$instance->getPariteDizaine($hex_penguin);
+        
+        // direction 1
+        $newhex = $hex_penguin - 1;
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+        // direction 2
+        if ($paritehex_penguin == 1) {
+            $newhex = $hex_penguin - 11;
+        } else {
+            $newhex = $hex_penguin - 10;
+        }
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+        // direction 3
+        if ($paritehex_penguin == 1) {
+            $newhex = $hex_penguin - 10;
+        } else {
+            $newhex = $hex_penguin - 9;
+        }
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+        // direction 4
+        $newhex = $hex_penguin + 1;
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+        // direction 5
+        if ($paritehex_penguin == 1) {
+            $newhex = $hex_penguin +10;
+        } else {
+            $newhex = $hex_penguin +11;
+        }
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+        // direction 6
+        if ($paritehex_penguin == 1) {
+            $newhex = $hex_penguin +9;
+        } else {
+            $newhex = $hex_penguin +10;
+        }
+        $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+        if ($exist != null) {
+           $hex_test[] = $newhex;
+        }
+
+
+        
+
+        //Propagation
+
+        $stop = 0;
+        while ($stop == 0)
+        {
+            foreach($hex_test as $hex)
+            {
+                
+                    $hex_ok[] = $hex;
+
+                    $paritehex = game::$instance->getPariteDizaine($hex);
+
+                    // direction 1
+                    $newhex = $hex - 1;
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                                       
+                    }
+                    
+
+                    // direction 2
+                    if ($paritehex == 1) {
+                        $newhex = $hex - 11;
+                    } else {
+                        $newhex = $hex - 10;
+                    }
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                    
+                    }
+                    
+
+                    // direction 3
+                    if ($paritehex == 1) {
+                        $newhex = $hex - 10;
+                    } else {
+                        $newhex = $hex - 9;
+                    }
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                    
+                    }
+                    
+
+                    // direction 4
+                    $newhex = $hex + 1;
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                    
+                    }
+                    
+
+                    // direction 5
+                    if ($paritehex == 1) {
+                        $newhex = $hex +10;
+                    } else {
+                        $newhex = $hex +11;
+                    }
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                    
+                    }
+                    
+
+                    // direction 6
+                    if ($paritehex == 1) {
+                        $newhex = $hex +9;
+                    } else {
+                        $newhex = $hex +10;
+                    }
+                    $exist = self::getUniqueValueFromDB("SELECT card_id FROM tile WHERE card_location = 'board' AND card_location_arg ='{$newhex}'");
+                    if (($exist != null)&&(!in_array($newhex, $hex_ok))&&(!in_array($newhex, $hex_test))) {
+                    $hex_test[] = $newhex;
+                    
+                    }
+                    
+                $hex_test = array_values(array_diff($hex_test, [$hex]));
+            
+
+            }
+
+            if($hex_test == null)
+            {
+                $stop = 1;
+            }
+        }
+
+        
+        $hexoccuped_without_startpenguin = self::getObjectListFromDB("SELECT hex FROM penguin WHERE hex != 0 and hex != '{$hex_penguin}'", true);
+
+        $intersection = array_intersect($hexoccuped_without_startpenguin, $hex_ok);
+
+        if (!empty($intersection)) {
+            
+            return false;
+        } else {
+            
+            return true;
+        }
+
+
+    }
+
+
 
     ///////////////////////////////////////////////////////////////////////////////// 
     //     _____  _                                    _   _                 
