@@ -335,9 +335,7 @@ class Pending extends APP_GameClass
                         {
                             game::$instance->addPending($this->player_id, "Isolate", $hex);
                         }
-                        else{
-                            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-                        }
+                        
                     }
 
                 }
@@ -464,9 +462,7 @@ class Pending extends APP_GameClass
                     {
                         game::$instance->addPending($this->player_id, "Isolate", $hex);
                     }
-                    else{
-                        game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-                    }
+                    
                 }
 
             }
