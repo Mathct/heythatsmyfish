@@ -1,1 +1,26 @@
-{}
+{
+
+    "100": {
+        "name": "Scoring Mode",
+        "values": {
+            "1": {
+                "name": "End-of-game scoring", 
+                "tmdisplay": "End-of-game scoring", 
+                "description": "Scores are displayed at the end of the game"
+            },
+
+            "2": {
+                "name": "Real-time scoring", 
+                "tmdisplay": "Real-time scoring", 
+                "description": "Scores are displayed in real time"
+            }   
+                
+        },
+        
+        
+        "default": 1
+              
+    }
+
+   
+}

@@ -314,6 +314,11 @@ class Pending extends APP_GameClass
                 game::$instance->incStat(1, 'tiles_collected', $this->player_id);
                 game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
+                if(game::$instance->gamestate->table_globals[100] == 2)
+                {
+                    game::$instance->Score();
+                }
+
 
                 /// TEST ISOLATED PENGUIN
 
@@ -441,6 +446,12 @@ class Pending extends APP_GameClass
             game::$instance->updateNbTurns(1);
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+            if(game::$instance->gamestate->table_globals[100] == 2)
+            {
+                game::$instance->Score();
+            }
+
             
             /// TEST ISOLATED PENGUIN
 
@@ -544,6 +555,11 @@ class Pending extends APP_GameClass
             )
         );
 
+        if(game::$instance->gamestate->table_globals[100] == 2)
+        {
+            game::$instance->Score();
+        }
+
                 
         $end = count(self::getObjectListFromDB( "SELECT id FROM penguin WHERE hex != 0", true ));
 
@@ -557,37 +573,8 @@ class Pending extends APP_GameClass
         else
 
         {
-            //game::$instance->notifyAllPlayers( 'simplePause', '', [ 'time' => 2000] ); 
-
-            $all_players_id = self::getObjectListFromDB( "SELECT player_id FROM player", true );
-            foreach ($all_players_id as $player_id)
-            {
-                $fish = 0;
-                $tile = count(self::getObjectListFromDB( "SELECT card_id FROM tile WHERE card_location = '{$player_id}'", true ));
-
-                $score_fish = self::getObjectListFromDB( "SELECT card_type FROM tile WHERE card_location = '{$player_id}'", true );
-                foreach ($score_fish as $score)
-                {
-                    $fish = $fish + $score;
-                }
-
-                self::DbQuery("UPDATE player set player_score = {$fish} WHERE player_id = '{$player_id}'");
-                self::DbQuery("UPDATE player set player_score_aux = {$tile} WHERE player_id = '{$player_id}'");
-
-
-
-                game::$instance->notifyAllPlayers(
-                    'score',
-                    '',
-                    array(
-                        'player_id' => $player_id,
-                        'total_fish' => $fish,
-
-                    )
-                );
-                
-            }
-
+            
+            game::$instance->Score();
             game::$instance->setGameStateValue("endgame", 1); // pour progression
             game::$instance->addPending($this->player_id, "End");   
 
@@ -728,6 +715,12 @@ class Pending extends APP_GameClass
         game::$instance->incStat(1, 'tiles_collected', $this->player_id);
         game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
+        if(game::$instance->gamestate->table_globals[100] == 2)
+        {
+            game::$instance->Score();
+        }
+
+
         $tiles = game::$instance->testMovePenguin($this->player_id, $newhex);
 
         if($tiles != null)
@@ -812,6 +805,11 @@ class Pending extends APP_GameClass
             game::$instance->updateNbTurns(1);
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
+
+            if(game::$instance->gamestate->table_globals[100] == 2)
+            {
+                game::$instance->Score();
+            }
 
             $tiles = game::$instance->testMovePenguin($this->player_id, $newhex);
 

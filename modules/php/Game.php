@@ -49,6 +49,8 @@ class Game extends \Table
 
         $this->initGameStateLabels([
 
+            "scoring_mode" => 100,  // rappel test : $this->gamestate->table_globals[100]
+            //"variant_mode" => 101,
             "endgame" => 10,
         ]);
 
@@ -708,6 +710,37 @@ class Game extends \Table
 
     }
 
+    function Score()
+    {
+        $all_players_id = self::getObjectListFromDB( "SELECT player_id FROM player", true );
+        foreach ($all_players_id as $player_id)
+        {
+            $fish = 0;
+            $tile = count(self::getObjectListFromDB( "SELECT card_id FROM tile WHERE card_location = '{$player_id}'", true ));
+
+            $score_fish = self::getObjectListFromDB( "SELECT card_type FROM tile WHERE card_location = '{$player_id}'", true );
+            foreach ($score_fish as $score)
+            {
+                $fish = $fish + $score;
+            }
+
+            self::DbQuery("UPDATE player set player_score = {$fish} WHERE player_id = '{$player_id}'");
+            self::DbQuery("UPDATE player set player_score_aux = {$tile} WHERE player_id = '{$player_id}'");
+
+
+
+            game::$instance->notifyAllPlayers(
+                'score',
+                '',
+                array(
+                    'player_id' => $player_id,
+                    'total_fish' => $fish,
+
+                )
+            );
+        }
+
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////////// 
