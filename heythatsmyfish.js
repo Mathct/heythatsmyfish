@@ -752,25 +752,24 @@ onOpButton: function(evt)
 
         const tileToRemove = document.getElementById(`tile_${args.starthex}`);
 
-        /*await new Promise(resolve => {
+        await new Promise(resolve => {
             tileToRemove.classList.add('zoom-out-animation');
-            if( this.getGameUserPreference('101') == 1 ) {
-                tileToRemove.style.animationIterationCount = '1'; // to remove infinite animation
+        
+            // Si une animation infinie est active, on la limite à une seule itération pour la sortie
+            if (this.getGameUserPreference('101') == 1) {
+                tileToRemove.style.animationIterationCount = '1';
             }
+        
             tileToRemove.addEventListener('animationend', () => {
                 tileToRemove.classList.remove('zoom-out-animation');
-                if( this.getGameUserPreference('101') == 1 ) {
-                    tileToRemove.style.animationIterationCount = 'infinite'; // infinite animation back
-                }
                 this.destroy(tileToRemove);
-                //tileToRemove.style.backgroundPosition = `0% 0%`;
                 penguinToMove.classList.replace(orient, 'back');
                 resolve();
             }, { once: true });
-        });*/
+        });
 
         //ATTTENTION A ENLEVER POUR REMETTRE ANIMATION
-        this.destroy(tileToRemove);
+       // this.destroy(tileToRemove);
         penguinToMove.classList.replace(orient, 'back');
 
         // this.penguins is updated
@@ -869,6 +868,219 @@ onOpButton: function(evt)
         
         this.scoreCtrl[args.player_id].toValue(args.total_fish);
     },
+
+
+/*******************************
+ ****** UTILS TISAAC *******
+ ******************************/
+
+
+/*******************************
+ ****** HELP MODE TISAAC *******
+    ******************************/
+/**
+ * Toggle help mode
+ */
+toggleHelpMode(b) {
+    if (b) 
+        this.activateHelpMode();
+    else 
+        this.desactivateHelpMode();
+},
+
+activateHelpMode() {
+    this._helpMode = true;
+    dojo.addClass('ebd-body', 'help-mode');
+    this._displayedTooltip = null;
+    document.body.addEventListener('click', this.closeCurrentTooltip.bind(this));
+},
+
+desactivateHelpMode() {
+    this.closeCurrentTooltip();
+    this._helpMode = false;
+    dojo.removeClass('ebd-body', 'help-mode');
+    document.body.removeEventListener('click', this.closeCurrentTooltip.bind(this));
+},
+
+closeCurrentTooltip() {
+    if (!this._helpMode) 
+        return;
+    if (this._displayedTooltip == null) 
+        return;
+    else {
+        this._displayedTooltip.close();
+        this._displayedTooltip = null;
+    }
+},
+
+    /*
+    * Custom connect that keep track of all the connections
+    *  and wrap clicks to make it work with help mode
+    */
+connect(node, action, callback) {
+    this._connections.push(dojo.connect($(node), action, callback));
+},
+
+onClick(node, callback, temporary = true) {
+    let safeCallback = (evt) => {
+        evt.stopPropagation();
+        if (this.isInterfaceLocked()) 
+            return false;
+        if (this._helpMode) 
+            return false;
+        callback(evt);
+    };
+
+    if (temporary) {
+        this.connect($(node), 'click', safeCallback);
+        dojo.removeClass(node, 'unselectable');
+        dojo.addClass(node, 'selectable');
+        this._selectableNodes.push(node);
+    } else {
+        dojo.connect($(node), 'click', safeCallback);
+    }
+},
+
+    /**
+     * Tooltip to work with help mode
+     */
+
+
+addCustomTooltip(id, html, config = {}) {
+    config = Object.assign(
+        {
+            delay: 400,
+            midSize: true,
+            forceRecreate: false,
+        },
+        config,
+    );
+
+    let isMobile = window.matchMedia('(pointer: coarse)').matches;
+    let longPressTimer = null;
+
+    let getContent = () => {
+        let content = typeof html === 'function' ? html() : html;
+        if (config.midSize) {
+            content = '<div class="midSizeDialog">' + content + '</div>';
+        }
+        return content;
+    };
+
+    if (this.tooltips[id] && !config.forceRecreate) {
+        this.tooltips[id].getContent = getContent;
+        return;
+    }
+
+    let tooltip = new dijit.Tooltip({
+        getContent,
+        position: this.defaultTooltipPosition,
+        showDelay: config.delay,
+    });
+    this.tooltips[id] = tooltip;
+    dojo.addClass(id, 'tooltipable');
+
+    // Empêcher l'affichage au simple clic sur mobile
+    dojo.connect($(id), 'click', (evt) => {
+        if (isMobile && !this._helpMode) {
+            evt.stopPropagation();
+            return; // Bloque l'affichage du tooltip sur mobile sauf en mode help
+        }
+
+        if (!this._helpMode) {
+            tooltip.close();
+        } else {
+            evt.stopPropagation();
+
+            if (tooltip.state === 'SHOWING') {
+                this.closeCurrentTooltip();
+            } else {
+                this.closeCurrentTooltip();
+                tooltip.open($(id));
+                this._displayedTooltip = tooltip;
+            }
+        }
+    });
+
+    tooltip.showTimeout = null;
+
+    // Gestion du long press sur mobile
+    dojo.connect($(id), 'touchstart', (evt) => {
+        if (isMobile) {
+            longPressTimer = setTimeout(() => {
+                tooltip.open($(id));
+            }, 500); // 500ms = temps pour considérer un long press
+        }
+    });
+
+    dojo.connect($(id), 'touchend', (evt) => {
+        if (isMobile) {
+            clearTimeout(longPressTimer);
+        }
+    });
+
+    dojo.connect($(id), 'touchmove', (evt) => {
+        if (isMobile) {
+            clearTimeout(longPressTimer); // Annule le long press si l'utilisateur glisse son doigt
+        }
+    });
+
+    // Gestion normale des tooltips sur PC
+    dojo.connect($(id), 'mouseenter', (evt) => {
+        evt.stopPropagation();
+
+        if (!this._helpMode && !this._dragndropMode) {
+            if (isMobile) return; // Bloque l'affichage des tooltips sur mobile hors help mode
+
+            if (tooltip.showTimeout != null) 
+                clearTimeout(tooltip.showTimeout);
+
+            tooltip.showTimeout = setTimeout(() => {
+                if ($(id)) 
+                    tooltip.open($(id));
+            }, config.delay);
+        }
+    });
+
+    dojo.connect($(id), 'mouseleave', (evt) => {
+        evt.stopPropagation();
+        if (!this._helpMode && !this._dragndropMode) {
+            tooltip.close();
+            if (tooltip.showTimeout != null) 
+                clearTimeout(tooltip.showTimeout);
+        }
+    });
+},
+
+
+destroyTooltip(elem) {
+    if (this.tooltips[elem.id]) {
+    clearTimeout(this.tooltips[elem.id].showTimeout);
+    this.tooltips[elem.id].close();
+    this.tooltips[elem.id].destroy();
+    delete this.tooltips[elem.id];
+    }
+},
+
+destroy(elem, delayRemove = false) {
+    this.destroyTooltip(elem);
+    this.empty(elem);
+    if(!delayRemove) 
+    elem.remove();
+},
+
+empty(container) {
+
+    container = $(container);
+    container.childNodes.forEach((node) => {
+    //!! destroy node makes gap in LOOP because of removing them
+    this.destroy(node,true);
+    });
+    container.childNodes.forEach((node) => {
+    node.remove();
+    });
+    container.innerHTML = '';
+},
 
 
 

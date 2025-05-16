@@ -360,19 +360,20 @@ body {
 }
 
 
+
 .zoom-out-animation {
     animation: zoomOut 0.3s ease-in-out;
 }
 
 @keyframes zoomOut {
     0% {
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(1);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: scale(1.2);
     }
     100% {
-        transform: translate(-50%, -50%) scale(0);
+        transform: scale(0);
         opacity: 0;
     }
 }
