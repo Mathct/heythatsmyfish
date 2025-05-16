@@ -752,7 +752,7 @@ onOpButton: function(evt)
 
         const tileToRemove = document.getElementById(`tile_${args.starthex}`);
 
-        await new Promise(resolve => {
+        /*await new Promise(resolve => {
             tileToRemove.classList.add('zoom-out-animation');
             if( this.getGameUserPreference('101') == 1 ) {
                 tileToRemove.style.animationIterationCount = '1'; // to remove infinite animation
@@ -767,7 +767,11 @@ onOpButton: function(evt)
                 penguinToMove.classList.replace(orient, 'back');
                 resolve();
             }, { once: true });
-        });
+        });*/
+
+        //ATTTENTION A ENLEVER POUR REMETTRE ANIMATION
+        this.destroy(tileToRemove);
+        penguinToMove.classList.replace(orient, 'back');
 
         // this.penguins is updated
 

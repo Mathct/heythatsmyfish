@@ -28,9 +28,7 @@
 
 body {
     background-image: url('img/sea.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: repeat;
 }
 
 /*
@@ -66,6 +64,11 @@ body {
     position: relative;
     transform-origin: top left;
     display: flex;
+
+    background-image: url('img/sea.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #iceberg {
@@ -107,7 +110,7 @@ body {
   border-radius: 20px;
   z-index: 1;
   position: relative;
-  /*background-color:#2db2b6;*/
+  
   
 }
 
