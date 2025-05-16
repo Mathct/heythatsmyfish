@@ -49,8 +49,10 @@ class Pending extends APP_GameClass
             }
         }
 
-
-
+        
+        //var_dump (game::$instance->getGameStateValue('variant_mode'));
+        
+        
 
         return $ret;
     }
@@ -314,7 +316,7 @@ class Pending extends APP_GameClass
                 game::$instance->incStat(1, 'tiles_collected', $this->player_id);
                 game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
-                if(game::$instance->gamestate->table_globals[100] == 2)
+                if(game::$instance->getGameStateValue('scoring_mode') == 2)
                 {
                     game::$instance->Score();
                 }
@@ -447,7 +449,7 @@ class Pending extends APP_GameClass
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
-            if(game::$instance->gamestate->table_globals[100] == 2)
+            if(game::$instance->getGameStateValue('scoring_mode') == 2)
             {
                 game::$instance->Score();
             }
@@ -555,7 +557,7 @@ class Pending extends APP_GameClass
             )
         );
 
-        if(game::$instance->gamestate->table_globals[100] == 2)
+        if(game::$instance->getGameStateValue('scoring_mode') == 2)
         {
             game::$instance->Score();
         }
@@ -715,7 +717,7 @@ class Pending extends APP_GameClass
         game::$instance->incStat(1, 'tiles_collected', $this->player_id);
         game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
-        if(game::$instance->gamestate->table_globals[100] == 2)
+        if(game::$instance->getGameStateValue('scoring_mode') == 2)
         {
             game::$instance->Score();
         }
@@ -806,7 +808,7 @@ class Pending extends APP_GameClass
             game::$instance->incStat(1, 'tiles_collected', $this->player_id);
             game::$instance->incStat($fish, 'fish_collected', $this->player_id);
 
-            if(game::$instance->gamestate->table_globals[100] == 2)
+            if(game::$instance->getGameStateValue('scoring_mode') == 2)
             {
                 game::$instance->Score();
             }

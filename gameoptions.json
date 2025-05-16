@@ -20,6 +20,28 @@
         
         "default": 1
               
+    },
+
+     "101": {
+        "name": "Sleepy Penguins",
+        "values": {
+            "1": {
+                "name": "Disable", 
+                "tmdisplay": "Sleepy Penguins disabled", 
+                "description": "Normal Game"
+            },
+
+            "2": {
+                "name": "Enable", 
+                "tmdisplay": "Sleepy Penguins enabled", 
+                "description": "Force the next player's Penguin to move"
+            }   
+                
+        },
+        
+        
+        "default": 1
+              
     }
 
    

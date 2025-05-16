@@ -49,8 +49,8 @@ class Game extends \Table
 
         $this->initGameStateLabels([
 
-            "scoring_mode" => 100,  // rappel test : $this->gamestate->table_globals[100]
-            //"variant_mode" => 101,
+            "scoring_mode" => 100,  
+            "variant_mode" => 101,
             "endgame" => 10,
         ]);
 
