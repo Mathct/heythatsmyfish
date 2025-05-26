@@ -52,6 +52,8 @@ class Game extends \Table
             "scoring_mode" => 100,  
             "variant_mode" => 101,
             "endgame" => 10,
+            "variant_imposed_hex" => 11,
+            "variant_one_hex" => 12,
         ]);
 
         self::$instance = $this; // ATTENTION
@@ -123,6 +125,9 @@ class Game extends \Table
         self::initStat('player', 'tiles_collected', 0);
 
         $this->setGameStateInitialValue("endgame", 0);
+        $this->setGameStateInitialValue("variant_imposed_hex", 0);
+        $this->setGameStateInitialValue("variant_one_hex", 0);
+
 
 
         // INIT ICE //

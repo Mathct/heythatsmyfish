@@ -378,6 +378,23 @@ body {
     }
 }
 
+.zoom-out-animation2 {
+    animation: zoomOut2 0.3s ease-in-out;
+}
+
+@keyframes zoomOut2 {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+}
+
 .zoom-in-animation {
     animation: zoomIn 0.3s ease-in-out;
 }

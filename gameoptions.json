@@ -40,7 +40,14 @@
         },
         
         
-        "default": 1
+        "default": 1,
+
+        "displaycondition": [
+            {
+                "type": "minplayers",
+                "value": 3
+            }
+        ]
               
     }
 

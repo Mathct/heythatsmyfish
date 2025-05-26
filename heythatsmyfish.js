@@ -165,7 +165,7 @@ onEnteringState: function( stateName, args )
             else{
                 if(args.args.title != null)
                 {
-                    $('pagemaintitletext').innerHTML = this.format_string_recursive(_(args.args.title).replace('${actplayer}', this.divActPlayer()).replace('#nb#',args.args.nb).replace('#nb2#',args.args.nb2).replace('#icon#',args.args.icon).replace('#icon2#',args.args.icon2), args.args);  
+                    $('pagemaintitletext').innerHTML = this.format_string_recursive(_(args.args.title).replace('${actplayer}', this.divActPlayer()).replace(/#opponent#/g,args.args.opponent).replace('#nb#',args.args.nb).replace('#nb2#',args.args.nb2).replace('#icon#',args.args.icon).replace('#icon2#',args.args.icon2), args.args);  
                 }
             }
             break;
@@ -818,7 +818,7 @@ onOpButton: function(evt)
             const penguinElement = document.getElementById(`peng_${penguin.player_id}_${penguin.no}`);
 
             await new Promise(resolve => {
-                penguinElement.classList.add('zoom-out-animation');
+                penguinElement.classList.add('zoom-out-animation2');
                 penguinElement.addEventListener('animationend', () => {
                     this.destroy(penguinElement);
                     resolve();
