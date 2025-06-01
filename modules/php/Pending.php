@@ -440,19 +440,54 @@ class Pending extends APP_GameClass
 
                     {
                         game::$instance->addPending($this->player_id, "Variant");
+                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
+                    
+                    }
 
-                        /*if(game::$instance->getGameStateValue("variant_imposed_hex") == 0)
+
+                    if($this->variante == 1)
+
+                    {
+
+                        /// TEST ISOLATED PENGUIN
+
+                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+                        
+                        $count_ping = count($hex_occuped);
+
+                        if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
+                        unset($hex_occuped[$index]);                        // Supprime la valeur cible
+                        $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
+                        array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
+                        }
+
+                        $count_isolate = 0;
+
+                        foreach($hex_occuped as $hex)
                         {
-                            /// TEST ISOLATED PENGUIN
-
-                            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
-                            
-                            if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-                            unset($hex_occuped[$index]);                        // Supprime la valeur cible
-                            $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-                            array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
+                            $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                            if($tiles == null)
+                            {
+                                $count_isolate = $count_isolate +1;
                             }
 
+                            else
+                            {
+
+                                $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                                if($test_isolate == true)
+                                {
+                                    $count_isolate = $count_isolate +1;
+                                        
+                                                        
+                                }
+                            }
+
+                        }
+
+                        if($count_isolate == $count_ping)
+                        {
                             foreach($hex_occuped as $hex)
                             {
                                 $test_isolate = game::$instance->testIsolatedPenguin($hex);
@@ -467,41 +502,6 @@ class Pending extends APP_GameClass
                                 }
 
                             }
-                        }*/
-
-                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
-                        
-
-                    }
-
-
-                    if($this->variante == 1)
-
-                    {
-
-                        /// TEST ISOLATED PENGUIN
-
-                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
-                        
-                        if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-                        unset($hex_occuped[$index]);                        // Supprime la valeur cible
-                        $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-                        array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
-                        }
-
-                        foreach($hex_occuped as $hex)
-                        {
-                            $test_isolate = game::$instance->testIsolatedPenguin($hex);
-                            if($test_isolate == true)
-                            {
-                                $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
-                                if($tiles != null)
-                                {
-                                    game::$instance->addPending($this->player_id, "Isolate", $hex);
-                                }
-                                
-                            }
-
                         }
 
                         game::$instance->setGameStateValue("variant_imposed_hex", 0);
@@ -620,35 +620,6 @@ class Pending extends APP_GameClass
 
             {
                 game::$instance->addPending($this->player_id, "Variant");
-
-                /*if(game::$instance->getGameStateValue("variant_imposed_hex") == 0)
-                {
-                    /// TEST ISOLATED PENGUIN
-
-                    $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
-                    
-                    if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-                    unset($hex_occuped[$index]);                        // Supprime la valeur cible
-                    $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-                    array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
-                    }
-
-                    foreach($hex_occuped as $hex)
-                    {
-                        $test_isolate = game::$instance->testIsolatedPenguin($hex);
-                        if($test_isolate == true)
-                        {
-                            $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
-                            if($tiles != null)
-                            {
-                                game::$instance->addPending($this->player_id, "Isolate", $hex);
-                            }
-                            
-                        }
-
-                    }
-                }*/
-
                 game::$instance->setGameStateValue("variant_imposed_hex", 0);
                 game::$instance->setGameStateValue("variant_one_hex", 0);
                 
@@ -664,6 +635,8 @@ class Pending extends APP_GameClass
             /// TEST ISOLATED PENGUIN
 
             $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+
+            $count_ping = count($hex_occuped);
             
             if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
             unset($hex_occuped[$index]);                        // Supprime la valeur cible
@@ -671,19 +644,46 @@ class Pending extends APP_GameClass
             array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
             }
 
+            $count_isolate = 0;
+
             foreach($hex_occuped as $hex)
             {
-                $test_isolate = game::$instance->testIsolatedPenguin($hex);
-                if($test_isolate == true)
+                $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                if($tiles == null)
                 {
-                    $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
-                    if($tiles != null)
-                    {
-                        game::$instance->addPending($this->player_id, "Isolate", $hex);
-                    }
-                    
+                    $count_isolate = $count_isolate +1;
                 }
 
+                else
+                {
+
+                    $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                    if($test_isolate == true)
+                    {
+                            $count_isolate = $count_isolate +1;
+                            
+                                            
+                    }
+                }
+
+            }
+
+            if($count_isolate == $count_ping)
+            {
+                foreach($hex_occuped as $hex)
+                {
+                    $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                    if($test_isolate == true)
+                    {
+                        $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                        if($tiles != null)
+                        {
+                            game::$instance->addPending($this->player_id, "Isolate", $hex);
+                        }
+                        
+                    }
+
+                }
             }
 
             game::$instance->setGameStateValue("variant_imposed_hex", 0);
@@ -927,7 +927,7 @@ class Pending extends APP_GameClass
         $ret["selected"] = array();
         $ret['buttons'] = array();
         $ret['title'] = clienttranslate('${actplayer} must do all the movements of the isolated penguins');
-        $ret['titleyou'] = clienttranslate('This penguin is isolated. ${you} must complete all of its movements');
+        $ret['titleyou'] = clienttranslate('${you} must complete the movements of the isolated penguins');
 
 
         $ret["selected"][] = 'hex_' . $parg1;
@@ -1094,7 +1094,7 @@ class Pending extends APP_GameClass
         
     }
 
-
+//// VARIANT 
 
 function argVariant($parg1, $parg2)
     {
@@ -1124,7 +1124,7 @@ function argVariant($parg1, $parg2)
             if (count($listhex)>=1)
             {
                 $peng_selectable[] = 'hex_' . $hex;
-                //$ret["selectable"][] = 'hex_' . $hex;
+                
             }
             
         }
