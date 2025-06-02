@@ -132,6 +132,7 @@ class Pending extends APP_GameClass
                     if($player_no == $nbre_players)
                     {
                         game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
                         game::$instance->addPending($this->player_id, "Variant");
                     }
                     else
@@ -230,6 +231,8 @@ class Pending extends APP_GameClass
                     $player_no = self::getUniqueValueFromDB("SELECT player_no FROM player WHERE player_id={$this->player_id}");
                     if($player_no == $nbre_players)
                     {
+                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
                         game::$instance->addPending($this->player_id, "Variant");
                     }
                     else
@@ -294,7 +297,21 @@ class Pending extends APP_GameClass
 
         else
         {
-            if(game::$instance->getGameStateValue("variant_imposed_hex") >= 1)
+
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $array = array();
+
+            foreach ($hexoccuped as $test) {
+                $listhex = game::$instance->testMovePenguin($this->player_id, $test);
+                
+                if (count($listhex)>=1)
+                {
+                    $array[] = $test;
+                }
+            }
+
+
+            if((game::$instance->getGameStateValue("variant_imposed_hex") >= 1)&&($array != null))
             {
                 $hex = 'hex_' . game::$instance->getGameStateValue("variant_imposed_hex");
                 game::$instance->addPending($this->player_id, "NormalTurn2", $hex);
@@ -779,22 +796,8 @@ class Pending extends APP_GameClass
         {
             game::$instance->giveExtraTime($this->player_id);
             game::$instance->updateNbTurns(1);
-
-            if($this->variante == 1)
-
-            {
-                game::$instance->addPendingFirst($this->player_id, "Pass");
-            }
+            game::$instance->addPendingFirst($this->player_id, "Pass");
             
-
-            if($this->variante == 2)
-
-            {
-                game::$instance->addPending($this->player_id, "Variant");
-            }
-
-            game::$instance->setGameStateValue("variant_imposed_hex", 0);
-            game::$instance->setGameStateValue("variant_one_hex", 0);
 
         }
 
@@ -832,64 +835,24 @@ class Pending extends APP_GameClass
     function Pass($parg1, $parg2, $varg1, $varg2)
     {
         
-        if($this->variante == 1)
-        {
-            game::$instance->notifyAllPlayers(
-                'message',
-                clienttranslate('${player_name} cannot play anymore and passes'),
-                array(
-                    'player_name' => $this->player_name,
-                    
-
-                )
-            );
-            
-            
-            game::$instance->giveExtraTime($this->player_id);
-            game::$instance->updateNbTurns(1);
-            game::$instance->addPendingFirst($this->player_id, "Pass");
-        }
-
-        if($this->variante == 2)
-
-        {
-            $test_nb_player_in_game = 0;
-            $all_players_id = self::getObjectListFromDB( "SELECT player_id FROM player", true );
-            foreach ($all_players_id as $player_id)
-            {
-                $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$player_id}' AND hex != 0", true);
-                if($hexoccuped != null)
-                {
-                    $test_nb_player_in_game = $test_nb_player_in_game +1;
-                }
-
-            }
-
-            if($test_nb_player_in_game >=2)
-            {
-                game::$instance->addPending($this->player_id, "Variant");
-            }
-            else
-            {
-                game::$instance->notifyAllPlayers(
-                'message',
-                clienttranslate('${player_name} cannot play anymore and passes'),
-                array(
-                    'player_name' => $this->player_name,
-                    
-
-                )
-                );
+        
+        game::$instance->notifyAllPlayers(
+            'message',
+            clienttranslate('${player_name} cannot play anymore and passes'),
+            array(
+                'player_name' => $this->player_name,
                 
-                game::$instance->giveExtraTime($this->player_id);
-                game::$instance->updateNbTurns(1);
-                game::$instance->addPendingFirst($this->player_id, "Pass");
 
-            }
+            )
+        );
+        
+        
+        game::$instance->giveExtraTime($this->player_id);
+        game::$instance->updateNbTurns(1);
+        game::$instance->addPendingFirst($this->player_id, "Pass");
+        
 
-        
-        }
-        
+               
     }
 
     function argEnd($parg1, $parg2)
@@ -1104,48 +1067,53 @@ function argVariant($parg1, $parg2)
         $ret["selected"] = array();
         $ret['buttons'] = array();
 
-        $ret['opponent'] = '<span style="color: #' . $this->nextplayer_color . ';">' . $this->nextplayer_name . '</span>';
-
-        $ret['title'] = clienttranslate('"Sleepy Penguins": ${actplayer} must force a #opponent#\'s penguin to move');
-        $ret['titleyou'] = clienttranslate('"Sleepy Penguins": ${you} must force a #opponent#\'s penguin to move');
-
-       
-        $peng_selectable = array();
-
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->nextplayer}' AND hex != 0", true);
-
-        if($hexoccuped != null)
-
+        $nextplayer = game::$instance->NextPlayerNoBlocked($this->player_id);
+        if($nextplayer != 0)
         {
+            $nextplayer_name = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id={$nextplayer}");
+            $nextplayer_color = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id={$nextplayer}");
+                    
+            $ret['opponent'] = '<span style="color: #' . $nextplayer_color . ';">' . $nextplayer_name . '</span>';
 
-        foreach ($hexoccuped as $hex) {
-            $listhex = game::$instance->testMovePenguin($this->nextplayer, $hex);
-            
-            if (count($listhex)>=1)
+            $ret['title'] = clienttranslate('"Sleepy Penguins": ${actplayer} must force a #opponent#\'s penguin to move');
+            $ret['titleyou'] = clienttranslate('"Sleepy Penguins": ${you} must force a #opponent#\'s penguin to move');
+
+        
+            $peng_selectable = array();
+
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$nextplayer}' AND hex != 0", true);
+
+            if($hexoccuped != null)
+
             {
-                $peng_selectable[] = 'hex_' . $hex;
+
+            foreach ($hexoccuped as $hex) {
+                $listhex = game::$instance->testMovePenguin($nextplayer, $hex);
+                
+                if (count($listhex)>=1)
+                {
+                    $peng_selectable[] = 'hex_' . $hex;
+                    
+                }
                 
             }
-            
+
+            if(count($peng_selectable) >= 2)
+            {
+                $ret["selectable"] = $peng_selectable;
+            }
+            if(count($peng_selectable) == 1)
+            {
+                $explode = explode('_', $peng_selectable[0]);
+                $one_hex = intval($explode[1]);
+                game::$instance->setGameStateValue("variant_one_hex", $one_hex);
+            }
+
+
+
+            }
+
         }
-
-        if(count($peng_selectable) >= 2)
-        {
-            $ret["selectable"] = $peng_selectable;
-        }
-        if(count($peng_selectable) == 1)
-        {
-            $explode = explode('_', $peng_selectable[0]);
-            $one_hex = intval($explode[1]);
-            game::$instance->setGameStateValue("variant_one_hex", $one_hex);
-        }
-
-
-
-         }
-
-        
-        
 
 
         return $ret;
@@ -1153,14 +1121,18 @@ function argVariant($parg1, $parg2)
 
     function Variant($parg1, $parg2, $varg1, $varg2)
     {
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+        $nextplayer = game::$instance->NextPlayerNoBlocked($this->player_id);
 
         if($varg1 != null)
-        {      
+        {
+            $nextplayer_name = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id={$nextplayer}");
+            $nextplayer_color = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id={$nextplayer}");
+
             if($this->player_pref_confirm == 1)
             {
                 $explode = explode('_', $varg1);
                 $hex = intval($explode[1]);
+                game::$instance->setGameStateValue("variant_one_hex", 0);
                 game::$instance->setGameStateValue("variant_imposed_hex", $hex);
                 game::$instance->giveExtraTime($this->player_id);
                 
@@ -1170,7 +1142,7 @@ function argVariant($parg1, $parg2)
                 clienttranslate('${player_name} forces ${next} to move a penguin'),
                 array(
                     'next' =>    [   'log' => '<b style="color: #${color};">${opponent_name}</b>',
-                                        'args'=> ['opponent_name' => $this->nextplayer_name, 'color'=>$this->nextplayer_color]
+                                        'args'=> ['opponent_name' => $nextplayer_name, 'color'=>$nextplayer_color]
                                     ],
 
                     'player_name' => $this->player_name,
@@ -1179,14 +1151,8 @@ function argVariant($parg1, $parg2)
                 )
                 );
 
-                if($hexoccuped != null)
-                {
-                    game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-                }
-                else
-                {
-                    game::$instance->addPendingFirst($this->player_id, "Pass");
-                }
+                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                
             }
 
             if($this->player_pref_confirm == 2)
@@ -1197,6 +1163,7 @@ function argVariant($parg1, $parg2)
 
         else
         {
+           
             if(game::$instance->getGameStateValue("variant_one_hex") != 0)
             {
                 game::$instance->setGameStateValue("variant_imposed_hex", game::$instance->getGameStateValue("variant_one_hex"));
@@ -1209,16 +1176,9 @@ function argVariant($parg1, $parg2)
 
             game::$instance->setGameStateValue("variant_one_hex", 0);
             game::$instance->giveExtraTime($this->player_id);
+            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
 
-            if($hexoccuped != null)
-            {
-                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-            }
-            else
-            {
-                game::$instance->addPendingFirst($this->player_id, "Pass");
-            }
-            
+                        
         }
         
         
@@ -1253,8 +1213,9 @@ function argVariant($parg1, $parg2)
 
     function VariantConfirm($parg1, $parg2, $varg1, $varg2)
     {
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+        $nextplayer = game::$instance->NextPlayerNoBlocked($this->player_id);
 
+        
         if($varg1 == 'no')
         {
             game::$instance->addPending($this->player_id, "Variant");
@@ -1262,6 +1223,9 @@ function argVariant($parg1, $parg2)
 
         if($varg1 == 'yes')
         {
+            $nextplayer_name = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id={$nextplayer}");
+            $nextplayer_color = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id={$nextplayer}");
+
             $explode = explode('_', $parg1);
             $hex = intval($explode[1]);
             game::$instance->setGameStateValue("variant_imposed_hex", $hex);
@@ -1273,7 +1237,7 @@ function argVariant($parg1, $parg2)
                 clienttranslate('${player_name} forces ${next} to move a penguin'),
                 array(
                     'next' =>    [   'log' => '<b style="color: #${color};">${opponent_name}</b>',
-                                        'args'=> ['opponent_name' => $this->nextplayer_name, 'color'=>$this->nextplayer_color]
+                                        'args'=> ['opponent_name' => $nextplayer_name, 'color'=>$nextplayer_color]
                                     ],
 
                     'player_name' => $this->player_name,
@@ -1282,15 +1246,9 @@ function argVariant($parg1, $parg2)
                 )
                 );
 
-            if($hexoccuped != null)
-            {
-                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-            }
-            else
-            {
-                game::$instance->addPendingFirst($this->player_id, "Pass");
-            }
-            
+            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+
+                        
         }
         
         

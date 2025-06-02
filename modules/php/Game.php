@@ -747,6 +747,58 @@ class Game extends \Table
 
     }
 
+    function NextPlayerNoBlocked($id)
+    {
+        $variable = count(self::getObjectListFromDB("SELECT player_id id FROM player", true)) - 1;
+        $players = array();
+        $testplayer = $id;
+        for ($i=1; $i <= $variable; $i++) { 
+           $new = game::$instance->getPlayerAfter($testplayer);
+           $players[] = $new;
+           $testplayer = $new;
+            
+        }
+
+        $stop = 0;
+        $nextplayer = 0;
+
+        foreach ($players as $player)
+        {
+            if($stop == 0)
+            {
+                $peng_selectable = array();
+
+                $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$player}' AND hex != 0", true);
+
+                if($hexoccuped != null)
+
+                {
+
+                    foreach ($hexoccuped as $hex) {
+                        $listhex = game::$instance->testMovePenguin($player, $hex);
+                        
+                        if (count($listhex)>=1)
+                        {
+                            $peng_selectable[] = $hex;
+                            
+                        }
+                        
+                    }
+
+                    if (count($peng_selectable) >= 1)
+                    {
+                        $stop = 1;
+                        $nextplayer = $player;
+                        
+                    }
+                }
+            }
+        }
+
+        return $nextplayer;
+
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////// 
     //     _____  _                                    _   _                 
