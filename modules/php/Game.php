@@ -114,7 +114,7 @@ class Game extends \Table
             )
         );
 
-        //$this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
+        $this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         $this->reloadPlayersBasicInfos();
 
 
