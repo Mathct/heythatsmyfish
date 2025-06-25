@@ -123,7 +123,7 @@ declare class StatusBar {
    * 
    * @returns the button DOM element
    */
-  addActionButton(label: string, callback: Function, params: any): HTMLButtonElement;
+  addActionButton(label: string, callback: Function, params?: any): HTMLButtonElement;
 
   /**
    * Remove all buttons on the status bar

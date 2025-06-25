@@ -459,7 +459,7 @@ setupBoard: function () {
 
             // Ajoute l'animation CSS
 
-            if( this.getGameUserPreference('101') == 1 ) {
+            if( this.getGameUserPreference('101') == 1 && this.bgaAnimationsActive()) {
                 tile_elt.style.animation = `floatTile ${5 + Math.random() * 2}s infinite ease-in-out`;
 
             }
@@ -493,7 +493,7 @@ setupBoard: function () {
     iceberg2.style.setProperty("--x-move", xMove);
     iceberg2.style.setProperty("--y-move", yMove);
 
-    if( this.getGameUserPreference('101') == 1 ) {
+    if( this.getGameUserPreference('101') == 1 && this.bgaAnimationsActive()) {
         
         iceberg.style.animation = `floatTile ${3 + Math.random()}s infinite ease-in-out`;
         iceberg2.style.animation = `floatTile ${3 + Math.random()}s infinite ease-in-out`;
@@ -603,7 +603,7 @@ createPenguin: async function(penguin) {
     hexTile.appendChild(penguinToken);
 
     await new Promise(resolve => {
-    if( this.getGameUserPreference('101') == 1 ) {
+    if( this.getGameUserPreference('101') == 1 && this.bgaAnimationsActive()) {
         hexTile.style.animationIterationCount = '1'; // infinite animation back
     }
         penguinToken.classList.add('zoom-in-animation');
@@ -694,10 +694,12 @@ onOpButton: function(evt)
         const icon_to_remove_id = `icn_peng_${penguin.player_id}_${penguin.no}`;
         const iconToRemove = document.getElementById(icon_to_remove_id);
         
-        await new Promise(resolve => {
-            iconToRemove.classList.add('zoom-out-animation');
-            iconToRemove.addEventListener('animationend', resolve, { once: true });
-        });
+        if (!this.instantaneousMode) {
+            await new Promise(resolve => {
+                iconToRemove.classList.add('zoom-out-animation');
+                iconToRemove.addEventListener('animationend', resolve, { once: true });
+            });
+        }
         this.destroy(iconToRemove);
 
         dojo.query(".selectable").removeClass("selectable");
@@ -752,21 +754,27 @@ onOpButton: function(evt)
 
         const tileToRemove = document.getElementById(`tile_${args.starthex}`);
 
-        await new Promise(resolve => {
-            tileToRemove.classList.add('zoom-out-animation');
-        
-            // Si une animation infinie est active, on la limite à une seule itération pour la sortie
-            if (this.getGameUserPreference('101') == 1) {
-                tileToRemove.style.animationIterationCount = '1';
-            }
-        
-            tileToRemove.addEventListener('animationend', () => {
-                tileToRemove.classList.remove('zoom-out-animation');
-                this.destroy(tileToRemove);
-                penguinToMove.classList.replace(orient, 'back');
-                resolve();
-            }, { once: true });
-        });
+        if (this.instantaneousMode) {
+            this.destroy(tileToRemove);
+        }
+        else{
+            await new Promise(resolve => {
+                tileToRemove.classList.add('zoom-out-animation');
+            
+                // Si une animation infinie est active, on la limite à une seule itération pour la sortie
+                if (this.getGameUserPreference('101') == 1) {
+                    tileToRemove.style.animationIterationCount = '1';
+                }
+            
+                tileToRemove.addEventListener('animationend', () => {
+                    tileToRemove.classList.remove('zoom-out-animation');
+                    this.destroy(tileToRemove);
+                    penguinToMove.classList.replace(orient, 'back');
+                    resolve();
+                }, { once: true });
+            });
+        }
+
 
         //ATTTENTION A ENLEVER POUR REMETTRE ANIMATION
        // this.destroy(tileToRemove);
@@ -817,35 +825,44 @@ onOpButton: function(evt)
             // remove penguin from board
             const penguinElement = document.getElementById(`peng_${penguin.player_id}_${penguin.no}`);
 
-            await new Promise(resolve => {
-                penguinElement.classList.add('zoom-out-animation2');
-                penguinElement.addEventListener('animationend', () => {
-                    this.destroy(penguinElement);
-                    resolve();
-                }, { once: true });
-            });
-            
+            if (this.instantaneousMode) {
+                this.destroy(penguinElement);
+            }
+            else{
+
+                await new Promise(resolve => {
+                    penguinElement.classList.add('zoom-out-animation2');
+                    penguinElement.addEventListener('animationend', () => {
+                        this.destroy(penguinElement);
+                        resolve();
+                    }, { once: true });
+                });
+            }
 
             // remove Tile
             const tileToRemove = document.getElementById(`tile_${penguin.hex}`);
 
+            if (this.instantaneousMode) {
+                this.destroy(tileToRemove);
+            }
+            else{
             await new Promise(resolve => {
-                tileToRemove.classList.add('zoom-out-animation');
-                if( this.getGameUserPreference('101') == 1 ) {
-                    tileToRemove.style.animationIterationCount = '1'; // to remove infinite animation
-                }
-                tileToRemove.addEventListener('animationend', () => {
-                    tileToRemove.classList.remove('zoom-out-animation');
+                    tileToRemove.classList.add('zoom-out-animation');
                     if( this.getGameUserPreference('101') == 1 ) {
-                        tileToRemove.style.animationIterationCount = 'infinite'; // infinite animation back
+                        tileToRemove.style.animationIterationCount = '1'; // to remove infinite animation
                     }
-                    this.destroy(tileToRemove);
-                    //tileToRemove.style.backgroundPosition = `0% 0%`; // Réinitialisation
+                    tileToRemove.addEventListener('animationend', () => {
+                        tileToRemove.classList.remove('zoom-out-animation');
+                        if( this.getGameUserPreference('101') == 1 ) {
+                            tileToRemove.style.animationIterationCount = 'infinite'; // infinite animation back
+                        }
+                        this.destroy(tileToRemove);
+                        //tileToRemove.style.backgroundPosition = `0% 0%`; // Réinitialisation
 
-                    resolve();
-                }, { once: true });
-            });
-            
+                        resolve();
+                    }, { once: true });
+                });
+            }
 
             //counters update
             const tileToUpdate = this.tiles.find(t => t.location_arg == penguin.hex);
