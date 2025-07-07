@@ -234,6 +234,14 @@ onUpdateActionButtons: function( stateName, args )
                     {
                         this.addActionButton( 'no', _("No") ,'onOpButton', null, null, 'red' );
                     }
+                    if(args.buttons[nb] == "move")
+                    {
+                        this.addActionButton( 'move', _("Move") ,'onOpButton', null, null, 'blue' );
+                    }
+                    if(args.buttons[nb] == "push")
+                    {
+                        this.addActionButton( 'push', _("Push") ,'onOpButton', null, null, 'blue' );
+                    }
                 }
                 break;
         }

@@ -23,19 +23,26 @@
     },
 
      "101": {
-        "name": "Sleepy Penguins",
+        "name": "Variant",
         "values": {
             "1": {
-                "name": "Disable", 
-                "tmdisplay": "Sleepy Penguins disabled", 
+                "name": "Normal Game", 
+                "tmdisplay": "Normal Game", 
                 "description": "Normal Game"
             },
 
             "2": {
-                "name": "Enable", 
+                "name": "Sleepy Penguins", 
                 "tmdisplay": "Sleepy Penguins enabled", 
                 "description": "Force the next player's Penguin to move"
+            }, 
+            
+            "3": {
+                "name": "Pushing Penguins", 
+                "tmdisplay": "Pushing Penguins enabled", 
+                "description": "Can push opposing penguins"
             }   
+                
                 
         },
         

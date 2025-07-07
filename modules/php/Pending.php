@@ -43,6 +43,12 @@ class Pending extends APP_GameClass
             $this->variante = 2;
         }
 
+        if(game::$instance->getGameStateValue('variant_mode') == 3)
+
+        {
+            $this->variante = 3;
+        }
+
 
 
         
@@ -119,7 +125,7 @@ class Pending extends APP_GameClass
             if($nbpingouinsreserve == 0)
             {
 
-                if($this->variante == 1)
+                if(($this->variante == 1)||($this->variante == 3))
                 {
                     game::$instance->addPendingFirst($this->player_id, "NormalTurn");
 
@@ -219,7 +225,7 @@ class Pending extends APP_GameClass
             if($nbpingouinsreserve == 0)
             {
 
-                if($this->variante == 1)
+                if(($this->variante == 1)||($this->variante == 3))
                 {
                     game::$instance->addPendingFirst($this->player_id, "NormalTurn");
 
@@ -283,6 +289,17 @@ class Pending extends APP_GameClass
                     $table[] = 'hex_' . $hex;
                     
                 }
+
+                else
+                {
+                    if($this->variante == 3)
+                    {
+                        if(count(game::$instance->canPush($hex)) >=1)
+                        {
+                            $table[] = 'hex_' . $hex;
+                        }
+                    }
+                }
             }
 
             if(count($table) >= 2)
@@ -303,7 +320,15 @@ class Pending extends APP_GameClass
 
         if($varg1 != null)
         {
+            if($this->variante == 3)
+            {
+                game::$instance->addPending($this->player_id, "Pushing", $varg1);
+            }
+
+            else
+            {
             game::$instance->addPending($this->player_id, "NormalTurn2", $varg1);
+            }
         }
 
         else
@@ -319,6 +344,17 @@ class Pending extends APP_GameClass
                 {
                     $array[] = $test;
                 }
+
+                else
+                {
+                    if($this->variante == 3)
+                    {
+                        if(count(game::$instance->canPush($test)) >=1)
+                        {
+                            $table[] = $test;
+                        }
+                    }
+                }
             }
 
 
@@ -328,9 +364,14 @@ class Pending extends APP_GameClass
                 game::$instance->addPending($this->player_id, "NormalTurn2", $hex);
             }
 
-           elseif((game::$instance->getGameStateValue("variant_imposed_hex") == 0)&&(count($array)== 1))
+           elseif((game::$instance->getGameStateValue("variant_imposed_hex") == 0)&&(count($array)== 1)&&($this->variante != 3))
             {
                 game::$instance->addPending($this->player_id, "NormalTurn2", 'hex_' .$array[0]);
+            }
+
+            elseif((game::$instance->getGameStateValue("variant_imposed_hex") == 0)&&(count($array)== 1)&&($this->variante == 3))
+            {
+                game::$instance->addPending($this->player_id, "Pushing", 'hex_' .$array[0]);
             }
 
             else
@@ -338,7 +379,7 @@ class Pending extends APP_GameClass
                 game::$instance->addPending($this->player_id, "Remove");
             }
 
-            // a faire: un if où le joueur n'a pas d'imposition et n a qu'1 seul ping à bouger
+            
         }
 
        
@@ -357,8 +398,8 @@ class Pending extends APP_GameClass
         $ret["selected"][] = $parg1;
 
         $explode = explode('_', $parg1);
-
         $tiles = game::$instance->testMovePenguin($this->player_id, $explode[1]);
+        
 
         foreach ($tiles as $tile)
         {
@@ -387,6 +428,17 @@ class Pending extends APP_GameClass
                         $ret["selectable2"][] = 'hex_' . $hex;
                     }
 
+                    else{
+                        if($this->variante == 3)
+                        {
+                            if(count(game::$instance->canPush($hex)) >=1)
+                            {
+                                $ret["selectable2"][] = 'hex_' . $hex;
+                            }
+                        }
+
+                    }
+
                 }
             }
 
@@ -408,14 +460,19 @@ class Pending extends APP_GameClass
         }
         
         
+        
         return $ret;
     }
 
     function NormalTurn2($parg1, $parg2, $varg1, $varg2)
     {
+        if($varg1 == null)
+        {
+            game::$instance->addPending($this->player_id, "Pushing", $parg1);
+        }
         
 
-        if($varg1 == 'cancel')
+        else if($varg1 == 'cancel')
 
         {
             game::$instance->addPending($this->player_id, "NormalTurn");
@@ -492,6 +549,16 @@ class Pending extends APP_GameClass
                     
                     }
 
+                    
+
+                    if($this->variante == 3){
+
+                        
+                        game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
+                    }
+
 
                     if($this->variante == 1)
 
@@ -502,12 +569,6 @@ class Pending extends APP_GameClass
                         $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
                         
                         $count_ping = count($hex_occuped);
-
-                        /*if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-                        unset($hex_occuped[$index]);                        // Supprime la valeur cible
-                        $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-                        array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
-                        }*/
 
                         $count_isolate = 0;
                         $count_blocked = 0;
@@ -572,7 +633,14 @@ class Pending extends APP_GameClass
                 } 
                 else
                 {
-                    game::$instance->addPending($this->player_id, "NormalTurn2", $varg1);
+                    if(($this->variante == 1)||($this->variante == 2))
+                    {
+                        game::$instance->addPending($this->player_id, "NormalTurn2", $varg1);
+                    }
+                    if($this->variante == 3)
+                    {
+                        game::$instance->addPending($this->player_id, "Pushing", $varg1);
+                    }
                 }       
                 
             }
@@ -669,6 +737,15 @@ class Pending extends APP_GameClass
 
             }
 
+            
+
+            if($this->variante == 3){
+
+                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                game::$instance->setGameStateValue("variant_one_hex", 0);
+            }
+
 
             if($this->variante == 1)
 
@@ -681,12 +758,6 @@ class Pending extends APP_GameClass
 
             $count_ping = count($hex_occuped);
             
-            /*if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-            unset($hex_occuped[$index]);                        // Supprime la valeur cible
-            $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-            array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
-            }*/
-
             $count_isolate = 0;
             $count_blocked = 0;
 
@@ -1272,7 +1343,7 @@ class Pending extends APP_GameClass
         
     }
 
-//// VARIANT 
+//// VARIANT SLEEPY
 
 function argVariant($parg1, $parg2)
     {
@@ -1591,13 +1662,226 @@ function argVariant($parg1, $parg2)
             
             else
             {
-                game::$instance->addPending($this->player_id, "Isolate");
+                game::$instance->addPending($this->player_id, "NormalTurn");
             }
 
                         
         }
         
         
+        
+    }
+
+    //// VARIANT PUSHING
+
+
+    function argPushing($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must move a penguin');
+        
+
+
+        $ret["selected"][] = $parg1;
+
+        $explode = explode('_', $parg1);
+        $move = game::$instance->testMovePenguin($this->player_id, $explode[1]);
+        $push = game::$instance->canPush($explode[1]);
+
+        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+
+        foreach ($hexoccuped as $hex) {
+                        
+            if ($hex != $explode[1])
+            {
+                $listhex = game::$instance->testMovePenguin($this->player_id, $hex);
+            
+                if (count($listhex)>=1)
+                {
+                    $ret["selectable2"][] = 'hex_' . $hex;
+                }
+
+                else{
+
+                if(count(game::$instance->canPush($hex)) >=1)
+                {
+                    $ret["selectable2"][] = 'hex_' . $hex;
+                }
+
+                }
+
+            }
+        }
+
+        
+        if ((count($move)>=1)&&(count($push)>=1)&&(count($ret["selectable2"]) > 1))
+        {
+            $ret['titleyou'] = clienttranslate('${you} must choose your action or change penguin');
+            $ret['buttons'][] = 'move';
+            $ret['buttons'][] = 'push';
+            $ret['buttons'][] = 'cancel';
+        }
+
+        if ((count($move)>=1)&&(count($push)>=1)&&(count($ret["selectable2"]) == 0))
+        {
+            $ret['titleyou'] = clienttranslate('${you} must choose your action');
+            $ret['buttons'][] = 'move';
+            $ret['buttons'][] = 'push';
+            $ret['buttons'][] = 'cancel';
+        }
+
+        
+        
+
+        
+
+        return $ret;
+    }
+
+    function Pushing($parg1, $parg2, $varg1, $varg2)
+    {
+        if($varg1 == null)
+        {
+            $explode = explode('_', $parg1);
+            $move = game::$instance->testMovePenguin($this->player_id, $explode[1]);
+            $push = game::$instance->canPush($explode[1]);
+
+            if (count($move)>=1)
+            {
+                game::$instance->addPending($this->player_id, "NormalTurn2", $parg1);
+            }
+
+            if (count($push)>=1)
+            {
+                game::$instance->addPending($this->player_id, "Pushing2", $parg1);
+            }
+
+
+
+        }
+        elseif($varg1 == 'cancel')
+        {
+            game::$instance->addPending($this->player_id, "NormalTurn");
+        }
+
+        elseif($varg1 == 'move')
+        {
+            game::$instance->addPending($this->player_id, "NormalTurn2", $parg1);
+        }
+
+        elseif($varg1 == 'push')
+        {
+            game::$instance->addPending($this->player_id, "Pushing2", $parg1);
+        }
+
+        else{
+            game::$instance->addPending($this->player_id, "Pushing", $varg1);
+        }
+
+        
+    }
+
+    function argPushing2($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must move a penguin');
+        $ret['titleyou'] = clienttranslate('${you} must choose your action');
+
+        
+
+        $ret["selected"][] = $parg1;
+        $ret['buttons'][] = 'cancel';
+
+        $explode = explode('_', $parg1);
+
+        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+
+        foreach ($hexoccuped as $hex) {
+                        
+            if ($hex != $explode[1])
+            {
+                $listhex = game::$instance->testMovePenguin($this->player_id, $hex);
+            
+                if (count($listhex)>=1)
+                {
+                    $ret["selectable2"][] = 'hex_' . $hex;
+                }
+
+                else{
+
+                if(count(game::$instance->canPush($hex)) >=1)
+                {
+                    $ret["selectable2"][] = 'hex_' . $hex;
+                }
+
+                }
+
+            }
+        }
+
+        $push = game::$instance->canPush($explode[1]);
+        foreach ($push as $hex)
+        {
+            $ret["selectable"][] = 'hex_' . $hex;
+
+            
+        }
+
+        
+
+        
+        
+
+        
+
+        return $ret;
+    }
+
+    function Pushing2($parg1, $parg2, $varg1, $varg2)
+    {
+
+        if($varg1 == 'cancel')
+        {
+            game::$instance->addPending($this->player_id, "NormalTurn");
+        }
+        else{
+
+            $test = 0;
+            $explode = explode('_', $varg1);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+
+            if (in_array($explode[1], $hexoccuped)) {
+
+                $test = 1;
+                
+            }
+
+            if ($test == 1)
+            {    
+                
+                game::$instance->addPending($this->player_id, "Pushing", $varg1);
+                     
+                
+            }
+
+            if ($test == 0)
+            {    
+                
+                game::$instance->addPending($this->player_id, "Pushing", $parg1);
+                     
+                
+            }
+
+        }
+       
         
     }
 
