@@ -760,6 +760,9 @@ onOpButton: function(evt)
 
         await this.slide(peng_id, hexTile, {phantom: false});
 
+        if(args.pushing !=1)
+        {
+
         const tileToRemove = document.getElementById(`tile_${args.starthex}`);
 
         if (this.instantaneousMode) {
@@ -783,6 +786,8 @@ onOpButton: function(evt)
             });
         }
 
+        }
+
 
         //ATTTENTION A ENLEVER POUR REMETTRE ANIMATION
        // this.destroy(tileToRemove);
@@ -790,6 +795,8 @@ onOpButton: function(evt)
 
         // this.penguins is updated
 
+        if(args.pushing !=1)
+        {
         const tileToUpdate = this.tiles.find(p => p.location_arg == args.starthex);
         tileToUpdate.location = penguin.player_id;
         tileToUpdate.location_arg = 0; // Met à jour la valeur de 'hex'
@@ -804,9 +811,7 @@ onOpButton: function(evt)
 
         this.tile_counter[penguin.player_id].incValue(1);
         this.tiles_collected[penguin.player_id] += 1;
-
-
-
+        }
 
     },
 
@@ -848,6 +853,8 @@ onOpButton: function(evt)
             }
 
             // remove Tile
+            if(args.last_tile != 0)
+            {
             const tileToRemove = document.getElementById(`tile_${penguin.hex}`);
 
             if (this.instantaneousMode) {
@@ -884,6 +891,7 @@ onOpButton: function(evt)
 
             let iconFish = document.getElementById(`icon_fish_${penguin.player_id}`);
             iconFish.style.backgroundPosition = `-${tile_x}00% -${tile_y}00%`;
+            }
 
         }
     },

@@ -277,7 +277,7 @@ class Pending extends APP_GameClass
         else
         {
         
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             $table = array();
 
@@ -334,7 +334,7 @@ class Pending extends APP_GameClass
         else
         {
 
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
             $array = array();
 
             foreach ($hexoccuped as $test) {
@@ -351,11 +351,13 @@ class Pending extends APP_GameClass
                     {
                         if(count(game::$instance->canPush($test)) >=1)
                         {
-                            $table[] = $test;
+                            $array[] = $test;
                         }
                     }
                 }
             }
+
+            
 
 
             if((game::$instance->getGameStateValue("variant_imposed_hex") >= 1)&&($array != null))
@@ -415,7 +417,7 @@ class Pending extends APP_GameClass
         {
             
 
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             foreach ($hexoccuped as $hex) {
                             
@@ -484,7 +486,7 @@ class Pending extends APP_GameClass
             
             $test = 0;
             $explode = explode('_', $varg1);
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             if (in_array($explode[1], $hexoccuped)) {
 
@@ -524,6 +526,7 @@ class Pending extends APP_GameClass
                             'penguin_infos' => $penguin_infos,
                             'nb' => $fish,
                             'last_tile' => $last_tile,
+                            'pushing' => 0,
 
                         )
                     );
@@ -566,7 +569,7 @@ class Pending extends APP_GameClass
 
                         /// TEST ISOLATED PENGUIN
 
-                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
                         
                         $count_ping = count($hex_occuped);
 
@@ -711,6 +714,7 @@ class Pending extends APP_GameClass
                     'penguin_infos' => $penguin_infos,
                     'nb' => $fish,
                     'last_tile' => $last_tile,
+                    'pushing' => 0,
 
                 )
             );
@@ -754,7 +758,7 @@ class Pending extends APP_GameClass
             
             /// TEST ISOLATED PENGUIN
 
-            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             $count_ping = count($hex_occuped);
             
@@ -830,9 +834,12 @@ class Pending extends APP_GameClass
 
     function Remove($parg1, $parg2, $varg1, $varg2)
     {
+        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+        if(count($hexoccuped) != 0)
+        {
         $penguin_infos = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE player_id='{$this->player_id}'");
 
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+        
         $fish_type = self::getUniqueValueFromDB("SELECT card_type FROM tile WHERE card_location_arg = '{$hexoccuped[0]}'");
         $sprite = self::getUniqueValueFromDB("SELECT card_type_arg FROM tile WHERE card_location_arg = '{$hexoccuped[0]}'");
 
@@ -876,6 +883,8 @@ class Pending extends APP_GameClass
 
             )
         );
+
+    }
 
         if(game::$instance->getGameStateValue('scoring_mode') == 2)
         {
@@ -987,7 +996,7 @@ class Pending extends APP_GameClass
 
 
         $table = array();
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
         foreach ($hexoccuped as $hex) {
             $listhex = game::$instance->testMovePenguin($this->player_id, $hex);
@@ -1016,7 +1025,7 @@ class Pending extends APP_GameClass
 
         else{
 
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
             $table = array();
 
             foreach ($hexoccuped as $hex) {
@@ -1070,7 +1079,7 @@ class Pending extends APP_GameClass
         {
             $ret['titleyou'] = clienttranslate('${you} must select an ice floe tile or change penguin');
 
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             foreach ($hexoccuped as $hex) {
                             
@@ -1109,7 +1118,7 @@ class Pending extends APP_GameClass
 
             $test = 0;
             $explode = explode('_', $varg1);
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             if (in_array($explode[1], $hexoccuped)) {
 
@@ -1149,6 +1158,7 @@ class Pending extends APP_GameClass
                             'penguin_infos' => $penguin_infos,
                             'nb' => $fish,
                             'last_tile' => $last_tile,
+                            'pushing' => 0,
 
                         )
                     );
@@ -1164,7 +1174,7 @@ class Pending extends APP_GameClass
                     }
 
 
-                    $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+                    $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
                     $table = array();
 
                     foreach ($hexoccuped as $hex) {
@@ -1291,6 +1301,7 @@ class Pending extends APP_GameClass
                     'penguin_infos' => $penguin_infos,
                     'nb' => $fish,
                     'last_tile' => $last_tile,
+                    'pushing' => 0,
 
                 )
             );
@@ -1305,7 +1316,7 @@ class Pending extends APP_GameClass
                 game::$instance->Score();
             }
 
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
             $table = array();
 
             foreach ($hexoccuped as $hex) {
@@ -1419,7 +1430,7 @@ function argVariant($parg1, $parg2)
 
         /// TEST ISOLATED PENGUIN
 
-            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             $count_ping = count($hex_occuped);
             
@@ -1596,7 +1607,7 @@ function argVariant($parg1, $parg2)
 
             /// TEST ISOLATED PENGUIN
 
-            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             $count_ping = count($hex_occuped);
             
@@ -1692,7 +1703,8 @@ function argVariant($parg1, $parg2)
         $move = game::$instance->testMovePenguin($this->player_id, $explode[1]);
         $push = game::$instance->canPush($explode[1]);
 
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+
+        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
         foreach ($hexoccuped as $hex) {
                         
@@ -1718,8 +1730,10 @@ function argVariant($parg1, $parg2)
         }
 
         
-        if ((count($move)>=1)&&(count($push)>=1)&&(count($ret["selectable2"]) > 1))
+        
+        if ((count($move)>=1)&&(count($push)>=1)&&(count($ret["selectable2"]) >= 1))
         {
+          
             $ret['titleyou'] = clienttranslate('${you} must choose your action or change penguin');
             $ret['buttons'][] = 'move';
             $ret['buttons'][] = 'push';
@@ -1728,6 +1742,7 @@ function argVariant($parg1, $parg2)
 
         if ((count($move)>=1)&&(count($push)>=1)&&(count($ret["selectable2"]) == 0))
         {
+             
             $ret['titleyou'] = clienttranslate('${you} must choose your action');
             $ret['buttons'][] = 'move';
             $ret['buttons'][] = 'push';
@@ -1793,7 +1808,7 @@ function argVariant($parg1, $parg2)
         $ret["selected"] = array();
         $ret['buttons'] = array();
         $ret['title'] = clienttranslate('${actplayer} must move a penguin');
-        $ret['titleyou'] = clienttranslate('${you} must choose your action');
+        $ret['titleyou'] = clienttranslate('${you} must choose which penguin to push');
 
         
 
@@ -1802,31 +1817,6 @@ function argVariant($parg1, $parg2)
 
         $explode = explode('_', $parg1);
 
-        $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
-
-        foreach ($hexoccuped as $hex) {
-                        
-            if ($hex != $explode[1])
-            {
-                $listhex = game::$instance->testMovePenguin($this->player_id, $hex);
-            
-                if (count($listhex)>=1)
-                {
-                    $ret["selectable2"][] = 'hex_' . $hex;
-                }
-
-                else{
-
-                if(count(game::$instance->canPush($hex)) >=1)
-                {
-                    $ret["selectable2"][] = 'hex_' . $hex;
-                }
-
-                }
-
-            }
-        }
-
         $push = game::$instance->canPush($explode[1]);
         foreach ($push as $hex)
         {
@@ -1834,13 +1824,6 @@ function argVariant($parg1, $parg2)
 
             
         }
-
-        
-
-        
-        
-
-        
 
         return $ret;
     }
@@ -1856,7 +1839,14 @@ function argVariant($parg1, $parg2)
 
             $test = 0;
             $explode = explode('_', $varg1);
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}'", true);
+            $explode2 = explode('_', $parg1);
+
+            $starthex = intval($explode2[1]);
+            $newhex = intval($explode[1]);
+
+           
+
+            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
 
             if (in_array($explode[1], $hexoccuped)) {
 
@@ -1873,9 +1863,42 @@ function argVariant($parg1, $parg2)
             }
 
             if ($test == 0)
-            {    
+            {   
+                $penguin_info_opponent = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$explode[1]}'");
+                $id_opponent = self::getUniqueValueFromDB("SELECT player_id FROM penguin WHERE hex ='{$explode[1]}'");
+                self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$id_opponent}' AND hex ='{$explode[1]}'");
+
+                game::$instance->notifyAllPlayers(
+                'removePenguins',
+                '',
+                array(
+                    'penguin_infos' => $penguin_info_opponent,
+                    'last_tile' => 0,
+
+                )
+                ); 
+
+                self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+                self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
                 
-                game::$instance->addPending($this->player_id, "Pushing", $parg1);
+
+                $penguin_info = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$explode[1]}'");
+
+                game::$instance->notifyAllPlayers(
+                'movePenguin',
+                '',
+                array(
+                    'player_name' => $this->player_name,
+                    'starthex' => $starthex,
+                    'penguin_infos' => $penguin_info,
+                    'pushing' => 1,
+
+                )
+                );
+
+                game::$instance->giveExtraTime($this->player_id);
+                game::$instance->updateNbTurns(1);
+                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
                      
                 
             }
