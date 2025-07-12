@@ -760,7 +760,7 @@ onOpButton: function(evt)
 
         await this.slide(peng_id, hexTile, {phantom: false});
 
-        if(args.pushing !=1)
+        if(args.pushing == 0)
         {
 
         const tileToRemove = document.getElementById(`tile_${args.starthex}`);
@@ -795,7 +795,7 @@ onOpButton: function(evt)
 
         // this.penguins is updated
 
-        if(args.pushing !=1)
+        if(args.pushing == 0)
         {
         const tileToUpdate = this.tiles.find(p => p.location_arg == args.starthex);
         tileToUpdate.location = penguin.player_id;

@@ -444,7 +444,7 @@ class Pending extends APP_GameClass
                 }
             }
 
-            if(count($ret["selectable2"]) > 1)
+            if(count($ret["selectable2"]) >= 1)
             {
                 $ret['titleyou'] = clienttranslate('${you} must select an ice floe tile or change penguin');
                 $ret['buttons'][] = 'cancel';
@@ -554,16 +554,16 @@ class Pending extends APP_GameClass
 
                     
 
-                    if($this->variante == 3){
+                    /*if($this->variante == 3){
 
                         
                         game::$instance->addPendingFirst($this->player_id, "NormalTurn");
                         game::$instance->setGameStateValue("variant_imposed_hex", 0);
                         game::$instance->setGameStateValue("variant_one_hex", 0);
-                    }
+                    }*/
 
 
-                    if($this->variante == 1)
+                    if(($this->variante == 1)||($this->variante == 3))
 
                     {
 
@@ -578,10 +578,25 @@ class Pending extends APP_GameClass
 
                         foreach($hex_occuped as $hex)
                         {
+                            
                             $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
                             if($tiles == null)
                             {
-                                $count_blocked = $count_blocked +1;
+                                if($this->variante == 1)
+                                {
+                                    $count_blocked = $count_blocked +1;
+                                }
+
+                                if($this->variante == 3)
+                                {
+                                    $push = game::$instance->canPush($hex);
+                                    if(count($push) == 0)
+                                    {
+                                        $count_blocked = $count_blocked +1;
+                                    }
+                                }
+                                
+                                
                             }
 
                             else
@@ -590,7 +605,21 @@ class Pending extends APP_GameClass
                                 $test_isolate = game::$instance->testIsolatedPenguin($hex);
                                 if($test_isolate == true)
                                 {
-                                    $count_isolate = $count_isolate +1;
+
+                                    if($this->variante == 1)
+                                    {
+                                        $count_isolate = $count_isolate +1;
+                                    }
+
+                                    if($this->variante == 3)
+                                    {
+                                        $push = game::$instance->canPush($hex);
+                                        if(count($push) == 0)
+                                        {
+                                            $count_isolate = $count_isolate +1;
+                                        }
+                                    }
+                                    
                                         
                                                         
                                 }
@@ -743,49 +772,77 @@ class Pending extends APP_GameClass
 
             
 
-            if($this->variante == 3){
+            /*if($this->variante == 3){
 
                 game::$instance->addPendingFirst($this->player_id, "NormalTurn");
                 game::$instance->setGameStateValue("variant_imposed_hex", 0);
                 game::$instance->setGameStateValue("variant_one_hex", 0);
-            }
+            }*/
 
 
-            if($this->variante == 1)
+            if(($this->variante == 1)||($this->variante == 3))
 
-            {
-
-            
-            /// TEST ISOLATED PENGUIN
-
-            $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
-
-            $count_ping = count($hex_occuped);
-            
-            $count_isolate = 0;
-            $count_blocked = 0;
-
-            foreach($hex_occuped as $hex)
-            {
-                $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
-                if($tiles == null)
-                {
-                    $count_blocked = $count_blocked +1;
-                }
-
-                else
-                {
-
-                    $test_isolate = game::$instance->testIsolatedPenguin($hex);
-                    if($test_isolate == true)
                     {
-                        $count_isolate = $count_isolate +1;
-                            
-                                            
-                    }
-                }
 
-            }
+                        /// TEST ISOLATED PENGUIN
+
+                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+                        
+                        $count_ping = count($hex_occuped);
+
+                        $count_isolate = 0;
+                        $count_blocked = 0;
+
+                        foreach($hex_occuped as $hex)
+                        {
+                            
+                            $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                            if($tiles == null)
+                            {
+                                if($this->variante == 1)
+                                {
+                                    $count_blocked = $count_blocked +1;
+                                }
+
+                                if($this->variante == 3)
+                                {
+                                    $push = game::$instance->canPush($hex);
+                                    if(count($push) == 0)
+                                    {
+                                        $count_blocked = $count_blocked +1;
+                                    }
+                                }
+                                
+                                
+                            }
+
+                            else
+                            {
+
+                                $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                                if($test_isolate == true)
+                                {
+
+                                    if($this->variante == 1)
+                                    {
+                                        $count_isolate = $count_isolate +1;
+                                    }
+
+                                    if($this->variante == 3)
+                                    {
+                                        $push = game::$instance->canPush($hex);
+                                        if(count($push) == 0)
+                                        {
+                                            $count_isolate = $count_isolate +1;
+                                        }
+                                    }
+                                    
+                                        
+                                                        
+                                }
+                            }
+
+                        }
 
             if(($count_blocked == $count_ping)||($count_isolate + $count_blocked != $count_ping))
             {
@@ -837,7 +894,7 @@ class Pending extends APP_GameClass
         $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
         if(count($hexoccuped) != 0)
         {
-        $penguin_infos = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE player_id='{$this->player_id}'");
+        $penguin_infos = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE player_id='{$this->player_id}' AND hex!=0");
 
         
         $fish_type = self::getUniqueValueFromDB("SELECT card_type FROM tile WHERE card_location_arg = '{$hexoccuped[0]}'");
@@ -1611,12 +1668,7 @@ function argVariant($parg1, $parg2)
 
             $count_ping = count($hex_occuped);
             
-            /*if (($index = array_search($newhex, $hex_occuped)) !== false) { // permet de mettre newhex en dernier
-            unset($hex_occuped[$index]);                        // Supprime la valeur cible
-            $hex_occuped = array_values($hex_occuped);          // Réindexe proprement le tableau
-            array_push($hex_occuped, $newhex);                  // Ajoute la valeur cible à la fin
-            }*/
-
+           
             $count_isolate = 0;
             $count_blocked = 0;
 
@@ -1749,7 +1801,7 @@ function argVariant($parg1, $parg2)
             $ret['buttons'][] = 'cancel';
         }
 
-        
+              
         
 
         
@@ -1813,18 +1865,22 @@ function argVariant($parg1, $parg2)
         
 
         $ret["selected"][] = $parg1;
-        $ret['buttons'][] = 'cancel';
+        
 
         $explode = explode('_', $parg1);
 
         $push = game::$instance->canPush($explode[1]);
+       
         foreach ($push as $hex)
         {
             $ret["selectable"][] = 'hex_' . $hex;
 
             
         }
+        $ret['buttons'][] = 'cancel';
+        
 
+        
         return $ret;
     }
 
@@ -1835,38 +1891,23 @@ function argVariant($parg1, $parg2)
         {
             game::$instance->addPending($this->player_id, "NormalTurn");
         }
+
         else{
+        
+                if($this->player_pref_confirm == 1)
+                {
+                $explode = explode('_', $varg1);
+                $explode2 = explode('_', $parg1);
 
-            $test = 0;
-            $explode = explode('_', $varg1);
-            $explode2 = explode('_', $parg1);
+                $starthex = intval($explode2[1]);
+                $newhex = intval($explode[1]);
 
-            $starthex = intval($explode2[1]);
-            $newhex = intval($explode[1]);
-
-           
-
-            $hexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
-
-            if (in_array($explode[1], $hexoccuped)) {
-
-                $test = 1;
-                
-            }
-
-            if ($test == 1)
-            {    
-                
-                game::$instance->addPending($this->player_id, "Pushing", $varg1);
-                     
-                
-            }
-
-            if ($test == 0)
-            {   
-                $penguin_info_opponent = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$explode[1]}'");
-                $id_opponent = self::getUniqueValueFromDB("SELECT player_id FROM penguin WHERE hex ='{$explode[1]}'");
-                self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$id_opponent}' AND hex ='{$explode[1]}'");
+            
+                $penguin_info_opponent = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
+                $id_opponent = self::getUniqueValueFromDB("SELECT player_id FROM penguin WHERE hex ='{$newhex}'");
+                $name_opponent = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id ='{$id_opponent}'");
+                $color_opponent = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id ='{$id_opponent}'");
+                self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$id_opponent}' AND hex ='{$newhex}'");
 
                 game::$instance->notifyAllPlayers(
                 'removePenguins',
@@ -1882,30 +1923,283 @@ function argVariant($parg1, $parg2)
                 self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
                 
 
-                $penguin_info = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$explode[1]}'");
+                $penguin_info = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
 
                 game::$instance->notifyAllPlayers(
                 'movePenguin',
-                '',
+                clienttranslate('${player_name} pushes a ${name_opponent}\'s penguin'),
                 array(
                     'player_name' => $this->player_name,
                     'starthex' => $starthex,
                     'penguin_infos' => $penguin_info,
                     'pushing' => 1,
+                    'name_opponent' =>    [   'log' => '<b style="color: #${color};">${opponent_name}</b>',
+                                        'args'=> ['opponent_name' => $name_opponent, 'color'=>$color_opponent]
+                                    ],
 
                 )
                 );
 
                 game::$instance->giveExtraTime($this->player_id);
                 game::$instance->updateNbTurns(1);
-                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+
+
+                /// TEST ISOLATED PENGUIN
+
+                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+                        
+                        $count_ping = count($hex_occuped);
+
+                        $count_isolate = 0;
+                        $count_blocked = 0;
+
+                        foreach($hex_occuped as $hex)
+                        {
+                            
+                            $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                            if($tiles == null)
+                            {
+                                if($this->variante == 1)
+                                {
+                                    $count_blocked = $count_blocked +1;
+                                }
+
+                                if($this->variante == 3)
+                                {
+                                    $push = game::$instance->canPush($hex);
+                                    if(count($push) == 0)
+                                    {
+                                        $count_blocked = $count_blocked +1;
+                                    }
+                                }
+                                
+                                
+                            }
+
+                            else
+                            {
+
+                                $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                                if($test_isolate == true)
+                                {
+
+                                    if($this->variante == 1)
+                                    {
+                                        $count_isolate = $count_isolate +1;
+                                    }
+
+                                    if($this->variante == 3)
+                                    {
+                                        $push = game::$instance->canPush($hex);
+                                        if(count($push) == 0)
+                                        {
+                                            $count_isolate = $count_isolate +1;
+                                        }
+                                    }
+                                    
+                                        
+                                                        
+                                }
+                            }
+
+                        }
+
+                        if(($count_blocked == $count_ping)||($count_isolate + $count_blocked != $count_ping))
+                        {
+                            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                            
+                        }
+
+                        
+                        else
+                        {
+                           
+                            game::$instance->addPending($this->player_id, "Isolate");
+                        }
+
+                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
+
+                }
+
+                if($this->player_pref_confirm == 2)
+                {
+                    game::$instance->addPending($this->player_id, "Pushing2Confirm", $parg1, $varg1);
+                }
                      
                 
-            }
+            
 
         }
        
         
+    }
+
+
+
+    function argPushing2Confirm($parg1, $parg2)
+    {
+        $ret = array();
+        $ret["selectable"] = array();
+        $ret["selectable2"] = array();
+        $ret["selected"] = array();
+        $ret['buttons'] = array();
+        $ret['title'] = clienttranslate('${actplayer} must move a penguin');
+        $ret['titleyou'] = clienttranslate('${you} must confirm');
+
+        $ret["selected"][] = $parg2;
+        
+
+
+        $ret['buttons'][] = 'yes';
+        $ret['buttons'][] = 'no';
+
+
+        
+
+        
+        
+
+        return $ret;
+    }
+
+    function Pushing2Confirm($parg1, $parg2, $varg1, $varg2)
+    {
+        
+
+        
+        if($varg1 == 'no')
+        {
+            game::$instance->addPending($this->player_id, "NormalTurn");
+        }
+
+        if($varg1 == 'yes')
+        {
+
+            $explode = explode('_', $parg2);
+                $explode2 = explode('_', $parg1);
+
+                $starthex = intval($explode2[1]);
+                $newhex = intval($explode[1]);
+
+            
+                $penguin_info_opponent = self::getObjectListFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
+                $id_opponent = self::getUniqueValueFromDB("SELECT player_id FROM penguin WHERE hex ='{$newhex}'");
+                $name_opponent = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id ='{$id_opponent}'");
+                $color_opponent = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id ='{$id_opponent}'");
+                self::DbQuery("UPDATE penguin set hex = 0 WHERE player_id = '{$id_opponent}' AND hex ='{$newhex}'");
+
+                game::$instance->notifyAllPlayers(
+                'removePenguins',
+                '',
+                array(
+                    'penguin_infos' => $penguin_info_opponent,
+                    'last_tile' => 0,
+
+                )
+                ); 
+
+                self::DbQuery("UPDATE penguin set hex = $newhex WHERE player_id = '{$this->player_id}' AND hex = '{$starthex}'");
+                self::DbQuery("UPDATE player set player_new_tile = '{$newhex}' WHERE player_id = '{$this->player_id}'");
+                
+
+                $penguin_info = self::getObjectFromDB("SELECT id, player_id, no, hex FROM penguin WHERE hex ='{$newhex}'");
+
+                game::$instance->notifyAllPlayers(
+                'movePenguin',
+                clienttranslate('${player_name} pushes a ${name_opponent}\'s penguin'),
+                array(
+                    'player_name' => $this->player_name,
+                    'starthex' => $starthex,
+                    'penguin_infos' => $penguin_info,
+                    'pushing' => 1,
+                    'name_opponent' =>    [   'log' => '<b style="color: #${color};">${opponent_name}</b>',
+                                        'args'=> ['opponent_name' => $name_opponent, 'color'=>$color_opponent]
+                                    ],
+
+                )
+                );
+
+                game::$instance->giveExtraTime($this->player_id);
+                game::$instance->updateNbTurns(1);
+                
+                /// TEST ISOLATED PENGUIN
+
+                        $hex_occuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+                        
+                        $count_ping = count($hex_occuped);
+
+                        $count_isolate = 0;
+                        $count_blocked = 0;
+
+                        foreach($hex_occuped as $hex)
+                        {
+                            
+                            $tiles = game::$instance->testMovePenguin($this->player_id, $hex);
+                            if($tiles == null)
+                            {
+                                if($this->variante == 1)
+                                {
+                                    $count_blocked = $count_blocked +1;
+                                }
+
+                                if($this->variante == 3)
+                                {
+                                    $push = game::$instance->canPush($hex);
+                                    if(count($push) == 0)
+                                    {
+                                        $count_blocked = $count_blocked +1;
+                                    }
+                                }
+                                
+                                
+                            }
+
+                            else
+                            {
+
+                                $test_isolate = game::$instance->testIsolatedPenguin($hex);
+                                if($test_isolate == true)
+                                {
+
+                                    if($this->variante == 1)
+                                    {
+                                        $count_isolate = $count_isolate +1;
+                                    }
+
+                                    if($this->variante == 3)
+                                    {
+                                        $push = game::$instance->canPush($hex);
+                                        if(count($push) == 0)
+                                        {
+                                            $count_isolate = $count_isolate +1;
+                                        }
+                                    }
+                                    
+                                        
+                                                        
+                                }
+                            }
+
+                        }
+
+                        if(($count_blocked == $count_ping)||($count_isolate + $count_blocked != $count_ping))
+                        {
+                            game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                            
+                        }
+
+                        
+                        else
+                        {
+                           
+                            game::$instance->addPending($this->player_id, "Isolate");
+                        }
+
+                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
+                        game::$instance->setGameStateValue("variant_one_hex", 0);
+
+        }
     }
 
 
