@@ -554,14 +554,7 @@ class Pending extends APP_GameClass
 
                     
 
-                    /*if($this->variante == 3){
-
-                        
-                        game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-                        game::$instance->setGameStateValue("variant_imposed_hex", 0);
-                        game::$instance->setGameStateValue("variant_one_hex", 0);
-                    }*/
-
+                    
 
                     if(($this->variante == 1)||($this->variante == 3))
 
@@ -772,13 +765,7 @@ class Pending extends APP_GameClass
 
             
 
-            /*if($this->variante == 3){
-
-                game::$instance->addPendingFirst($this->player_id, "NormalTurn");
-                game::$instance->setGameStateValue("variant_imposed_hex", 0);
-                game::$instance->setGameStateValue("variant_one_hex", 0);
-            }*/
-
+           
 
             if(($this->variante == 1)||($this->variante == 3))
 
