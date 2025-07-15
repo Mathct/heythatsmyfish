@@ -454,6 +454,17 @@ class Pending extends APP_GameClass
             else
             {
                 $ret['titleyou'] = clienttranslate('${you} must select an ice floe tile');
+                if($this->variante == 3)
+                {
+
+                    $push = game::$instance->canPush($explode[1]);
+                    if(count($push) >=1)
+                    {
+                        $ret['buttons'][] = 'cancel';
+                    }
+
+                }
+
             }
             
             
@@ -1785,7 +1796,7 @@ function argVariant($parg1, $parg2)
             $ret['titleyou'] = clienttranslate('${you} must choose your action');
             $ret['buttons'][] = 'move';
             $ret['buttons'][] = 'push';
-            $ret['buttons'][] = 'cancel';
+            
         }
 
               
