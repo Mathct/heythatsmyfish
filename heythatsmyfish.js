@@ -394,16 +394,25 @@ setupBoard: function () {
     console.log('Setting up the board');
 
     const board = document.getElementById("board_id");
+    let rows = [];
 
     // creation of hexes for selections
+    if(this.gamedatas.game_mode == 4 || this.gamedatas.game_mode == 5 || this.gamedatas.game_mode == 6)
+    {
+        rows = [8, 7, 8, 7, 8, 7, 8, 7]; // Number of haxoagos per row
+    }
 
-    const rows = [7, 8, 7, 8, 7, 8, 7, 8]; // Number of haxoagos per row
+    else
+    {
+       rows = [7, 8, 7, 8, 7, 8, 7, 8]; // Number of haxoagos per row 
+    }
+    
     const hexWidth = 108.25; 
     const hexHeight = 93.75;
     const spacing = 2; // gap between hexagons
 
     rows.forEach((cols, row) => {
-        let xOffset = cols === 7 ? (hexWidth + spacing) / 2 : 0;
+        let xOffset = rows[row] === 7 ? (hexWidth + spacing) / 2 : 0;
 
         for (let col = 0; col < cols; col++) {
             const hex = document.createElement("div");
@@ -446,7 +455,7 @@ setupBoard: function () {
             const row =  Math.floor(tile_pos/10);
             const col = tile_pos % 10;
 
-            let xOffset = row % 2 == 0 ? (hexWidth + spacing) / 2 : 0;
+            let xOffset = rows[row] === 7 ? (hexWidth + spacing) / 2 : 0;
             // Positionnement horizontal en pixels
             const x = col * (hexWidth + spacing) + xOffset;
 

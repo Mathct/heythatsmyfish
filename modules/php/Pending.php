@@ -32,7 +32,7 @@ class Pending extends APP_GameClass
         $this->nextplayer_name = self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id='{$this->nextplayer}'");
         $this->nextplayer_color = self::getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id='{$this->nextplayer}'");
 
-        if((game::$instance->getGameStateValue('variant_mode') == 0)||(game::$instance->getGameStateValue('variant_mode')==1)) // 0 si le jeu est en cours à la MAJ
+        if((game::$instance->getGameStateValue('variant_mode') == 0)||(game::$instance->getGameStateValue('variant_mode')==1)||(game::$instance->getGameStateValue('variant_mode')==4)||(game::$instance->getGameStateValue('variant_mode')==5)||(game::$instance->getGameStateValue('variant_mode')==6)) // 0 si le jeu est en cours à la MAJ
         {
             $this->variante = 1;
         }

@@ -148,36 +148,76 @@ class Game extends \Table
         $this->tile->createCards($tile, 'deck');
         $this->tile->shuffle('deck');
 
-        for ($i = 1; $i <= 7; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
+        if(game::$instance->getGameStateValue('variant_mode') != 4 && game::$instance->getGameStateValue('variant_mode') != 5 && game::$instance->getGameStateValue('variant_mode') != 6)
+        {
+            for ($i = 1; $i <= 7; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 11; $i <= 18; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 21; $i <= 27; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 31; $i <= 38; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 41; $i <= 47; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 51; $i <= 58; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 61; $i <= 67; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 71; $i <= 78; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
         }
 
-        for ($i = 11; $i <= 18; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+        else
+        {
+             for ($i = 1; $i <= 8; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 21; $i <= 27; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+            for ($i = 11; $i <= 17; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 31; $i <= 38; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+            for ($i = 21; $i <= 28; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 41; $i <= 47; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+            for ($i = 31; $i <= 37; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 51; $i <= 58; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+            for ($i = 41; $i <= 48; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 61; $i <= 67; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
-        }
+            for ($i = 51; $i <= 57; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
 
-        for ($i = 71; $i <= 78; $i++) {
-            $this->tile->pickCardForLocation('deck', 'board', $i);
+            for ($i = 61; $i <= 68; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
+            for ($i = 71; $i <= 77; $i++) {
+                $this->tile->pickCardForLocation('deck', 'board', $i);
+            }
+
         }
 
 
@@ -203,6 +243,24 @@ class Game extends \Table
                     self::DbQuery("INSERT INTO penguin (player_id, no, hex) VALUES ($player_id, $i,0)");
                 }
             }
+        }
+
+
+        // ALTERNATE MAPS
+
+        if(game::$instance->getGameStateValue('variant_mode') == 4)
+        {
+            self::DbQuery("UPDATE tile set card_location = 'discard' WHERE card_location_arg IN (4, 5, 24, 25, 44, 45, 64, 65)");
+        }
+
+        if(game::$instance->getGameStateValue('variant_mode') == 5)
+        {
+            self::DbQuery("UPDATE tile set card_location = 'discard' WHERE card_location_arg IN (23, 26, 42, 47, 52, 53, 54, 55, 56)");
+        }
+
+        if(game::$instance->getGameStateValue('variant_mode') == 6)
+        {
+            self::DbQuery("UPDATE tile set card_location = 'discard' WHERE card_location_arg IN (31, 32, 33, 35, 36, 37, 41, 42, 43, 45, 46, 47, 48)");
         }
 
 
@@ -260,6 +318,8 @@ class Game extends \Table
             WHERE card_location != 'board'
             GROUP BY card_location";
         $result["fish_collected"] = self::getCollectionFromDB($sql_fish, true);
+
+        $result['game_mode'] = game::$instance->getGameStateValue('variant_mode');
 
 
         //DEBUG
@@ -352,7 +412,15 @@ class Game extends \Table
         $dizaine = (int)($nombre / 10) % 10;
 
         // Déterminer la parité (2 si paire, 1 si impaire)
-        $parite = ($dizaine % 2 == 0) ? 2 : 1;
+        if(game::$instance->getGameStateValue('variant_mode') == 1 || game::$instance->getGameStateValue('variant_mode') == 2 || game::$instance->getGameStateValue('variant_mode') == 3)
+        {
+            $parite = ($dizaine % 2 == 0) ? 2 : 1;
+        }
+
+        else
+        {
+            $parite = ($dizaine % 2 == 0) ? 1 : 2;
+        }
 
         return $parite;
     }
