@@ -31,6 +31,24 @@
                 "description": "Normal Game"
             },
 
+            "4": {
+                "name": " o Alternate Maps (8 tiles removed)", 
+                "tmdisplay": "Alternate Maps (8 tiles removed)", 
+                "description": "8 tiles removed at the start of the game"
+            },
+
+            "5": {
+                "name": " o Alternate Maps (9 tiles removed)", 
+                "tmdisplay": "Alternate Maps (9 tiles removed)", 
+                "description": "9 tiles removed at the start of the game"
+            }, 
+            
+            "6": {
+                "name": " o Alternate Maps (13 tiles removed)", 
+                "tmdisplay": "Alternate Maps (13 tiles removed)", 
+                "description": "13 tiles removed at the start of the game"
+            },
+
             "2": {
                 "name": "Sleepy Penguins", 
                 "tmdisplay": "Sleepy Penguins enabled", 
@@ -41,26 +59,9 @@
                 "name": "Pushing Penguins", 
                 "tmdisplay": "Pushing Penguins enabled", 
                 "description": "Can push opposing penguins"
-            },
+            }
             
-            "4": {
-                "name": "Alternate Maps (8 tiles)", 
-                "tmdisplay": "Alternate Maps (8 tiles)", 
-                "description": "8 tiles removed at the start of the game"
-            },
-
-            "5": {
-                "name": "Alternate Maps (9 tiles)", 
-                "tmdisplay": "Alternate Maps (9 tiles)", 
-                "description": "9 tiles removed at the start of the game"
-            }, 
-            
-            "6": {
-                "name": "Alternate Maps (13 tiles)", 
-                "tmdisplay": "Alternate Maps (13 tiles)", 
-                "description": "13 tiles removed at the start of the game"
-            } 
-                
+                           
                 
         },
         
