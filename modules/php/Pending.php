@@ -640,8 +640,43 @@ class Pending extends APP_GameClass
                         
                         else
                         {
+                            
+
+                            if ($this->variante == 3) {
+
+                                $canbepush = 0;
+                                $newhexoccuped = self::getObjectListFromDB("SELECT hex FROM penguin WHERE player_id = '{$this->player_id}' AND hex != 0", true);
+
+                                foreach ($newhexoccuped as $hex) {
+
+                                    $testcanbepush = count(game::$instance->canBePush($hex));
+                                    
+                                    if($testcanbepush >= 1)
+                                    {
+                                        $canbepush = 1;
+                                    }
+                                
+                                }
+
+                                
+                                if( $canbepush == 1 )
+                                {
+                                    game::$instance->addPendingFirst($this->player_id, "NormalTurn");
+                                }
+
+                                else {
+                                    game::$instance->addPending($this->player_id, "Isolate");
+                                }
+
+                            }
+                            
+
+                            else {
+                                    game::$instance->addPending($this->player_id, "Isolate");
+                            }
+
                            
-                            game::$instance->addPending($this->player_id, "Isolate");
+                            
                         }
 
                         game::$instance->setGameStateValue("variant_imposed_hex", 0);
